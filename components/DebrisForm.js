@@ -36,7 +36,7 @@ const initErrorState = {
 const checkIfNotANumber = (num) => {
   return num.match(/[A-Za-z]+/);
 };
-const DebrisForm = () => {
+const DebrisForm = ({ navigation }) => {
   const [debris, setDebris] = useState('');
   const [error, setError] = useState(initErrorState);
   const [count, setCount] = useState('');
@@ -125,7 +125,7 @@ const DebrisForm = () => {
       <Button
         style={styles.link}
         labelStyle={{ color: colors.orange, fontWeight: '800' }}
-        onPress={submitDebris}>
+        onPress={() => navigation.navigate('Results')}>
         Show Collected List
       </Button>
     </View>
@@ -133,13 +133,17 @@ const DebrisForm = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {},
+  container: {
+    paddingTop: 20,
+  },
   text: {
     color: 'black',
     fontSize: 30,
     textAlign: 'center',
   },
-  picker: {},
+  picker: {
+    height: '50%',
+  },
   keypad: {
     alignSelf: 'center',
     justifyContent: 'center',

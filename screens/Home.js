@@ -3,6 +3,7 @@ import { SafeAreaView, Text, StyleSheet } from 'react-native';
 import { Button } from 'react-native-paper';
 import colors from '../colors';
 import { useAppState, useAppDispatch } from '../context/appContext';
+// import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const Home = ({ navigation }) => {
   const { started } = useAppState();

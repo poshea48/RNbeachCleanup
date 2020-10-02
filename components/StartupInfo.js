@@ -4,14 +4,14 @@ import styled from 'react-native-styled-components';
 import colors from '../colors';
 
 const Container = styled(View, {
-  flex: 2,
   justifyContent: 'flex-start',
   alignItems: 'center',
   marginBottom: 10,
+  marginTop: 10,
+  padding: 10,
 });
 
 const Welcome = styled(Text, {
-  flex: 1,
   textAlign: 'center',
   fontSize: 22,
   fontWeight: 'bold',
@@ -20,7 +20,6 @@ const Welcome = styled(Text, {
 });
 
 const InfoField = styled(View, {
-  flex: 3,
   justifyContent: 'space-between',
   alignItems: 'flex-start',
   listStyleImage: 'bullet',
@@ -29,7 +28,7 @@ const InfoField = styled(View, {
 
 const Info = styled(Text, {
   color: colors.main,
-  marginVertical: 1,
+  marginVertical: 20,
   marginHorizontal: 0,
 });
 
@@ -38,10 +37,10 @@ const StartupInfo = () => {
     <Container>
       <Welcome>Welcome to your Mobile Beach Cleanup Dashboard</Welcome>
       <InfoField>
-        <Info>Add whatever info about cleanup</Info>
-        <Info>Add your location for better data collection</Info>
-        <Info>Turn on GPS to track your distance covered</Info>
-        <Info>When you are ready hit the Start Cleanup Button</Info>
+        <Info>Start the Tracker</Info>
+        <Info>Collect the Debris</Info>
+        <Info>Tell us where you are collection</Info>
+        <Info>Submit the data</Info>
         <Info>THANK YOU!</Info>
       </InfoField>
     </Container>
