@@ -1,12 +1,13 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-// import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useAppState } from '../context/appContext';
 import DebrisForm from '../components/DebrisForm';
 import TrackerPage from '../components/TrackerPage';
 import ResultsPage from '../components/ResultsPage';
 import LocationForm from '../components/LocationForm';
 import StartupInfo from '../components/StartupInfo';
+import Icon from '../components/Icon';
+import colors from '../colors';
 
 const Tab = createBottomTabNavigator();
 
@@ -15,25 +16,31 @@ const CleanupPage = ({ navigation }) => {
 
   return (
     <Tab.Navigator
-      // screenOptions={({ route }) => ({
-      //   tabBarIcon: ({ focused, color, size }) => {
-      //     let iconName;
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
 
-      //     if (route.name === 'Home') {
-      //       iconName = focused
-      //         ? 'ios-information-circle'
-      //         : 'ios-information-circle-outline';
-      //     } else if (route.name === 'Settings') {
-      //       iconName = focused ? 'ios-list-box' : 'ios-list';
-      //     }
-
-      //     // You can return any component that you like here!
-      //     return <Ionicons name={iconName} size={size} color={color} />;
-      //   },
-      // })}
+          if (route.name === 'Start') {
+            iconName = focused
+              ? 'information-circle'
+              : 'information-circle-outline';
+          } else if (route.name === 'Debris') {
+            iconName = focused ? 'list' : 'list-outline';
+          } else if (route.name === 'Location') {
+            iconName = focused ? 'pin' : 'pin-outline';
+          } else if (route.name === 'Results') {
+            iconName = focused ? 'checkmark-done' : 'checkmark-done-outline';
+          } else if (route.name === 'Tracker') {
+            iconName = focused ? 'locate' : 'locate-outline';
+          }
+          const newSize = 30;
+          // You can return any component that you like here!
+          return <Icon name={iconName} size={newSize} color={color} />;
+        },
+      })}
       tabBarOptions={{
-        activeTintColor: 'tomato',
-        inactiveTintColor: 'gray',
+        activeTintColor: colors.main,
+        inactiveTintColor: colors.orange,
       }}>
       <Tab.Screen name="Start" component={StartupInfo} />
       <Tab.Screen
