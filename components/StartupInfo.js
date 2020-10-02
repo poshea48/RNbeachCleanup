@@ -1,50 +1,126 @@
-import React from 'react';
-import { View, Text } from 'react-native';
-import styled from 'react-native-styled-components';
+import React, { useState } from 'react';
+import { View, StyleSheet } from 'react-native';
+import { Switch, Text, Button } from 'react-native-paper';
 import colors from '../colors';
 
-const Container = styled(View, {
-  justifyContent: 'flex-start',
-  alignItems: 'center',
-  marginBottom: 10,
-  marginTop: 10,
-  padding: 10,
-});
-
-const Welcome = styled(Text, {
-  textAlign: 'center',
-  fontSize: 22,
-  fontWeight: 'bold',
-  color: colors.main,
-  marginBottom: 5,
-});
-
-const InfoField = styled(View, {
-  justifyContent: 'space-between',
-  alignItems: 'flex-start',
-  listStyleImage: 'bullet',
-  margin: 0,
-});
-
-const Info = styled(Text, {
-  color: colors.main,
-  marginVertical: 20,
-  marginHorizontal: 0,
-});
-
-const StartupInfo = () => {
+const StartupInfo = ({ navigation }) => {
+  const [isGpsOn, toggleGPS] = useState(false);
   return (
-    <Container>
-      <Welcome>Welcome to your Mobile Beach Cleanup Dashboard</Welcome>
-      <InfoField>
-        <Info>Start the Tracker</Info>
-        <Info>Collect the Debris</Info>
-        <Info>Tell us where you are collection</Info>
-        <Info>Submit the data</Info>
-        <Info>THANK YOU!</Info>
-      </InfoField>
-    </Container>
+    <View style={styles.container}>
+      <Text style={styles.header}>
+        Welcome to your Mobile Beach Cleanup Dashboard
+      </Text>
+      <View style={styles.infoWrapper}>
+        <View style={styles.infoField}>
+          <Text style={styles.info}>Please take proper PPE precautions</Text>
+        </View>
+        <View style={styles.infoField}>
+          <Text style={styles.info}>
+            Please add location information prior to submitting data
+          </Text>
+        </View>
+        <View style={styles.gpsField}>
+          <Text style={styles.gpsInfo}>
+            Would you like to track your GPS and distanced traveled during this
+            collection?
+          </Text>
+          <View style={styles.gps}>
+            <Text>GPS({isGpsOn ? 'on' : 'off'})</Text>
+            <Switch
+              style={styles.switch}
+              color={colors.main}
+              value={isGpsOn}
+              onValueChange={toggleGPS}
+            />
+          </View>
+        </View>
+        <View style={styles.infoField}>
+          <Text style={styles.info}>
+            Please fill out location details prior to submitting data
+          </Text>
+        </View>
+        <View style={styles.infoField}>
+          <Text style={styles.info}>
+            Once you begin your cleanup use the bottom tabs to navigate between
+            pages
+          </Text>
+        </View>
+      </View>
+      <Button
+        contentStyle={contentStyle}
+        mode="contained"
+        style={styles.button}
+        onPress={() => {
+          // dispatch({ type: 'STARTCLEANUP' });
+          navigation.navigate('Debris');
+        }}>
+        <Text style={styles.button}>GO!</Text>
+      </Button>
+    </View>
   );
 };
+
+const contentStyle = {
+  width: 220,
+};
+
+const styles = StyleSheet.create({
+  container: {
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    height: '100%',
+    padding: 20,
+    backgroundColor: colors.white,
+  },
+  header: {
+    textAlign: 'center',
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: colors.main,
+    marginBottom: 5,
+  },
+  infoWrapper: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    margin: 0,
+    marginBottom: 20,
+  },
+  infoField: {},
+  gpsField: {
+    justifyContent: 'flex-start',
+  },
+  gps: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  gpsInfo: {
+    color: colors.main,
+    marginTop: 20,
+    marginHorizontal: 0,
+    textAlign: 'center',
+  },
+  switch: {
+    alignSelf: 'center',
+  },
+  info: {
+    color: colors.main,
+    marginVertical: 20,
+    marginHorizontal: 0,
+    textAlign: 'center',
+  },
+  button: {
+    backgroundColor: colors.orange,
+    color: 'white',
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    alignSelf: 'center',
+    textAlign: 'center',
+    paddingHorizontal: 10,
+    borderRadius: 5,
+    marginBottom: 20,
+  },
+});
 
 export default StartupInfo;
