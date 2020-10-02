@@ -1,4 +1,3 @@
-/* eslint-disable react-native/no-inline-styles */
 import 'react-native-gesture-handler';
 import React from 'react';
 import { StyleSheet } from 'react-native';
@@ -6,7 +5,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Home from './screens/Home';
 import CleanupPage from './screens/CleanupPage';
-import LocationForm from './screens/LocationForm';
 import colors from './colors';
 import { AppProvider } from './context/appContext';
 import { Provider as PaperProvider } from 'react-native-paper';
@@ -20,7 +18,6 @@ const App = () => {
           <Stack.Navigator>
             <Stack.Screen name="Home" component={Home} />
             <Stack.Screen name="Cleanup" component={CleanupPage} />
-            <Stack.Screen name="Location" component={LocationForm} />
             {/* <Stack.Screen name="Results" component={Results} /> */}
           </Stack.Navigator>
         </NavigationContainer>
