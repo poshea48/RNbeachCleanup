@@ -5,30 +5,39 @@ const AppDispatchContext = createContext();
 
 const initialState = {
   started: false,
+  finished: false,
   debris: {},
   location: {
     beachName: '',
     city: '',
     state: '',
   },
-  totalCollected: 0,
-  totalDistance: 0,
-  totalTime: 0,
-  currentAction: 'startup',
-  startGPS: {},
-  positions: [],
-  watchId: null,
+  stats: {
+    date: '',
+    startTime: null,
+    endTime: null,
+    totalCollected: 0,
+    totalDistance: 0,
+    totalTime: 0,
+  },
+  tracker: {
+    inUse: false,
+    startGPS: {},
+    positions: [],
+    watchId: null,
+  },
 };
 
 const cleanupReducer = (state, action) => {
-  switch (action.type) {
+  const { type, payload } = action;
+  switch (type) {
     case 'RESET':
       return {
         ...initialState,
       };
     case 'ADD_DEBRIS':
-      const { item } = action.payload.debris;
-      const count = Number(action.payload.debris.count);
+      const { item } = payload.debris;
+      const count = Number(payload.debris.count);
       let debris = { ...state.debris };
       debris[item] ? (debris[item] += count) : (debris[item] = count);
       return {
@@ -39,40 +48,32 @@ const cleanupReducer = (state, action) => {
     case 'ADD_START_LOCATION':
       return {
         ...state,
-        startGPS: { longitude: action.lng, latitude: action.lat },
+        tracker: {
+          ...state.tracker,
+          ...payload.tracker,
+        },
       };
-    case 'START':
+    case 'START_CLEANUP':
       return {
         ...state,
-        startGPS: action.startGPS,
-        currentAction: action.action,
-        watchId: action.watchId,
+        started: true,
+        stats: {
+          ...state.stats,
+          ...payload.stats,
+        },
       };
     case 'PAUSE':
       return {
         ...state,
-        currentAction: action.action,
-        totalTime: action.totalTime,
       };
-
     case 'RESUME':
       return {
         ...state,
-        currentAction: action.action,
       };
 
     case 'FINISHED':
       return {
         ...state,
-        currentAction: action.action,
-        totalTime: action.totalTime,
-        totalDistance: action.distance,
-        watchId: null,
-      };
-    case 'ADD_POSITION':
-      return {
-        ...state,
-        positions: [...state.positions, action.position],
       };
     default:
       return state;

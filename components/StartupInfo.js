@@ -1,10 +1,60 @@
-import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Switch, Text, Button } from 'react-native-paper';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Pressable } from 'react-native';
+import { Switch, Text } from 'react-native-paper';
+import { useAppDispatch, useAppState } from '../context/appContext';
+
 import colors from '../colors';
 
 const StartupInfo = ({ navigation }) => {
-  const [isGpsOn, toggleGPS] = useState(false);
+  const { started, tracker } = useAppState();
+  const [isGpsOn, toggleGPS] = useState(started);
+  const dispatch = useAppDispatch();
+
+  const handleStartPress = () => {
+    if (isGpsOn) {
+      // get initial location data:
+    }
+    const dateObject = new Date().toDateString();
+    const startTime = dateObject.getTime();
+    const date = dateObject.toLocalDateString();
+
+    // context: {started: bool, finished: bool,
+    // stats: {date,startTime,endTime,totalCollected,totalDistance,totalTime: 0,},
+    // debris: {},
+    // location: {beachName,city,state}
+    // results: {totalCollected,totalDistance,totalTime,}
+    // tracker: {inUse, startGPS,positions,watchId]
+    // }
+    dispatch({
+      type: 'START_CLEANUP',
+      payload: {
+        started: true,
+        stats: {
+          date,
+          startTime,
+        },
+        tracker: {
+          ...tracker,
+          inUse: isGpsOn,
+        },
+      },
+    });
+    navigation.navigate('Debris');
+  };
+
+  const handleResetPress = () => {
+    toggleGPS(false);
+    dispatch({
+      type: 'RESET',
+      payload: {
+        tracker: {
+          ...tracker,
+          inUse: isGpsOn,
+        },
+      },
+    });
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.header}>
@@ -21,11 +71,12 @@ const StartupInfo = ({ navigation }) => {
         </View>
         <View style={styles.gpsField}>
           <Text style={styles.gpsInfo}>
-            Would you like to track your GPS and distanced traveled during this
-            collection?
+            Track your GPS and distanced traveled during cleanup?
           </Text>
           <View style={styles.gps}>
-            <Text>GPS({isGpsOn ? 'on' : 'off'})</Text>
+            <Text style={{ color: isGpsOn ? colors.orange : colors.gray }}>
+              GPS({isGpsOn ? 'on' : 'off'})
+            </Text>
             <Switch
               style={styles.switch}
               color={colors.main}
@@ -46,26 +97,58 @@ const StartupInfo = ({ navigation }) => {
           </Text>
         </View>
       </View>
-      <Button
-        contentStyle={contentStyle}
-        mode="contained"
-        style={styles.button}
-        onPress={() => {
-          // dispatch({ type: 'STARTCLEANUP' });
-          navigation.navigate('Debris');
-        }}>
-        <Text style={styles.button}>GO!</Text>
-      </Button>
+      <View />
+      {!started && (
+        <Pressable
+          onPress={() => handleStartPress()}
+          style={({ pressed }) => [
+            {
+              transform: [
+                { translateX: pressed ? 5 : 0 },
+                { translateY: pressed ? 5 : 0 },
+              ],
+              shadowColor: pressed ? 'transparent' : colors.black,
+              shadowOffset: pressed
+                ? { width: 0, height: 0 }
+                : { width: 5, height: 5 },
+              shadowOpacity: 1.0,
+            },
+            styles.button,
+            styles.startButton,
+          ]}>
+          <Text style={[styles.buttonText, styles.startButtonText]}>
+            START!
+          </Text>
+        </Pressable>
+      )}
+      {started && (
+        <Pressable
+          onPress={() => handleResetPress()}
+          style={({ pressed }) => [
+            {
+              transform: [
+                { translateX: pressed ? 5 : 0 },
+                { translateY: pressed ? 5 : 0 },
+              ],
+              shadowColor: pressed ? 'transparent' : colors.black,
+              shadowOffset: pressed
+                ? { width: 0, height: 0 }
+                : { width: 5, height: 5 },
+              shadowOpacity: 1.0,
+            },
+            styles.button,
+            styles.resetButton,
+          ]}>
+          <Text style={[styles.buttonText, styles.resetButtonText]}>Reset</Text>
+        </Pressable>
+      )}
     </View>
   );
 };
 
-const contentStyle = {
-  width: 220,
-};
-
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
     height: '100%',
@@ -103,6 +186,7 @@ const styles = StyleSheet.create({
   },
   switch: {
     alignSelf: 'center',
+    color: colors.orange,
   },
   info: {
     color: colors.main,
@@ -111,15 +195,32 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   button: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 220,
+    height: 50,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginBottom: 20,
+  },
+  startButton: {
     backgroundColor: colors.orange,
-    color: 'white',
+  },
+  resetButton: {
+    backgroundColor: colors.gray,
+  },
+  buttonText: {
+    color: colors.main,
     fontWeight: '700',
     textTransform: 'uppercase',
     alignSelf: 'center',
     textAlign: 'center',
-    paddingHorizontal: 10,
-    borderRadius: 5,
-    marginBottom: 20,
+  },
+  resetButtonText: {
+    color: colors.black,
+  },
+  startButtonText: {
+    color: colors.main,
   },
 });
 
