@@ -95,6 +95,14 @@ const DebrisForm = ({ navigation }) => {
       <Text style={styles.text}>What did you collect?</Text>
       <Picker
         style={styles.picker}
+        itemStyle={{
+          paddingVertical: 80,
+          color: colors.black,
+          fontSize: 30,
+          fontWeight: '800',
+          lineHeight: 100,
+          textTransform: 'uppercase',
+        }}
         selectedValue={debris}
         onValueChange={(value) => setDebris(value)}>
         {debrisDisplay}
@@ -104,7 +112,7 @@ const DebrisForm = ({ navigation }) => {
           mode="outlined"
           error={error.isError}
           theme={{
-            colors: { primary: colors.main, underlineColor: 'transparent' },
+            colors: { primary: colors.black, underlineColor: colors.main },
           }}
           keyboardType="numeric"
           style={styles.keypadLook}
@@ -116,7 +124,10 @@ const DebrisForm = ({ navigation }) => {
       </View>
 
       <Button
-        labelStyle={{ fontWeight: '800', color: '#fff' }}
+        labelStyle={{
+          fontWeight: '800',
+          color: '#fff',
+        }}
         style={styles.button}
         mode="contained"
         onPress={submitDebris}>
@@ -124,7 +135,7 @@ const DebrisForm = ({ navigation }) => {
       </Button>
       <Button
         style={styles.link}
-        labelStyle={{ color: colors.orange, fontWeight: '800' }}
+        labelStyle={{ color: colors.gray, fontWeight: '800' }}
         onPress={() => navigation.navigate('Results')}>
         Show Collected List
       </Button>
@@ -135,14 +146,19 @@ const DebrisForm = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     paddingTop: 20,
+    backgroundColor: colors.main,
+    height: '100%',
   },
   text: {
-    color: 'black',
+    color: colors.orange,
     fontSize: 30,
     textAlign: 'center',
+    fontWeight: '800',
   },
   picker: {
-    height: '50%',
+    height: '40%',
+    color: colors.red,
+    marginTop: 20,
   },
   keypad: {
     alignSelf: 'center',
@@ -164,9 +180,12 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     paddingVertical: 5,
     width: 150,
-    backgroundColor: colors.main,
+    backgroundColor: colors.orange,
     alignSelf: 'center',
     fontWeight: '800',
+    shadowColor: colors.black,
+    shadowOffset: { width: 8, height: 8 },
+    shadowOpacity: 1.0,
   },
   link: {
     color: colors.orange,
@@ -174,6 +193,8 @@ const styles = StyleSheet.create({
   error: {
     color: colors.warning,
     fontSize: 12,
+    textTransform: 'uppercase',
+    fontWeight: '800',
   },
 });
 

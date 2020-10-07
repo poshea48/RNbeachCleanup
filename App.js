@@ -15,7 +15,16 @@ const App = () => {
     <AppProvider>
       <PaperProvider>
         <NavigationContainer style={styles.container}>
-          <Stack.Navigator>
+          <Stack.Navigator
+            screenOptions={{
+              headerStyle: {
+                backgroundColor: colors.white,
+              },
+              headerTintColor: colors.black,
+              headerTitleStyle: {
+                fontWeight: 'bold',
+              },
+            }}>
             <Stack.Screen name="Home" component={Home} />
             <Stack.Screen name="Cleanup" component={CleanupPage} />
             {/* <Stack.Screen name="Results" component={Results} /> */}

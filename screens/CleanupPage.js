@@ -39,8 +39,9 @@ const CleanupPage = ({ navigation }) => {
         },
       })}
       tabBarOptions={{
-        activeTintColor: colors.main,
-        inactiveTintColor: colors.orange,
+        activeTintColor: colors.success,
+        inactiveTintColor: colors.black,
+        style: { backgroundColor: colors.white },
       }}>
       <Tab.Screen name="Start" component={StartupInfo} />
       <Tab.Screen
