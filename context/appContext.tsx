@@ -1,12 +1,18 @@
 import React, { createContext, useContext, useReducer } from 'react';
+import {
+  ActionType,
+  AppState,
+  DebrisState,
+  DispatchType,
+} from '../customTypes/context';
 
-const AppStateContext = createContext();
-const AppDispatchContext = createContext();
+const AppStateContext = createContext<AppState | null>(null);
+const AppDispatchContext = createContext<DispatchType | null>(null);
 
-const initialState = {
+const initialState: AppState = {
   started: false,
   finished: false,
-  debris: {},
+  debris: null,
   location: {
     beachName: '',
     city: '',
@@ -14,21 +20,18 @@ const initialState = {
   },
   stats: {
     date: '',
-    startTime: null,
-    endTime: null,
+    startTime: 0,
+    endTime: 0,
     totalCollected: 0,
     totalDistance: 0,
     totalTime: 0,
   },
   tracker: {
     inUse: false,
-    startGPS: {},
-    positions: [],
-    watchId: null,
   },
 };
 
-const cleanupReducer = (state, action) => {
+const cleanupReducer = (state: AppState, action: ActionType) => {
   const { type, payload } = action;
   switch (type) {
     case 'RESET':
@@ -36,15 +39,23 @@ const cleanupReducer = (state, action) => {
         ...initialState,
       };
     case 'ADD_DEBRIS':
-      const { item } = payload.debris;
-      const count = Number(payload.debris.count);
-      let debris = { ...state.debris };
-      debris[item] ? (debris[item] += count) : (debris[item] = count);
-      return {
-        ...state,
-        debris,
-        totalCollected: state.totalCollected + count,
-      };
+      if (payload.debris) {
+        const { item } = payload.debris;
+        const count = Number(payload.debris.count);
+        let debris: DebrisState = { ...state.debris };
+        debris[item] ? (debris[item] += count) : (debris[item] = count);
+        return {
+          ...state,
+          debris,
+          stats: {
+            ...state.stats,
+            totalCollected: state.stats.totalCollected + count,
+          },
+        };
+      } else {
+        return { ...state };
+      }
+
     case 'ADD_START_LOCATION':
       return {
         ...state,
@@ -80,7 +91,7 @@ const cleanupReducer = (state, action) => {
   }
 };
 
-const AppProvider = ({ children }) => {
+const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(cleanupReducer, initialState);
 
   return (
@@ -94,7 +105,7 @@ const AppProvider = ({ children }) => {
 
 const useAppState = () => {
   const context = useContext(AppStateContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAppState must be used with an AppProvider');
   }
   return context;
@@ -102,7 +113,7 @@ const useAppState = () => {
 
 const useAppDispatch = () => {
   const context = useContext(AppDispatchContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAppDispatch must be used with an AppProvider');
   }
   return context;
