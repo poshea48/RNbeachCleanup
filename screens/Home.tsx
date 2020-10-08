@@ -1,11 +1,17 @@
 import React from 'react';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { SafeAreaView, Text, StyleSheet } from 'react-native';
 import { Button } from 'react-native-paper';
 import colors from '../colors';
 import { useAppState, useAppDispatch } from '../context/appContext';
+import { RootStackParamList } from '../customTypes/navigation';
 // import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const Home = ({ navigation }) => {
+type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+
+const Home: React.FC<{ navigation: HomeScreenNavigationProp }> = ({
+  navigation,
+}) => {
   const { started } = useAppState();
   const dispatch = useAppDispatch();
   return (

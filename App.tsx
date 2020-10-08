@@ -1,6 +1,5 @@
 import 'react-native-gesture-handler';
 import React from 'react';
-import { StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Home from './screens/Home';
@@ -8,14 +7,17 @@ import CleanupPage from './screens/CleanupPage';
 import colors from './colors';
 import { AppProvider } from './context/appContext';
 import { Provider as PaperProvider } from 'react-native-paper';
-const Stack = createStackNavigator();
+import { RootStackParamList } from './customTypes/navigation';
+
+const Stack = createStackNavigator<RootStackParamList>();
 
 const App = () => {
   return (
     <AppProvider>
       <PaperProvider>
-        <NavigationContainer style={styles.container}>
+        <NavigationContainer>
           <Stack.Navigator
+            initialRouteName="Home"
             screenOptions={{
               headerStyle: {
                 backgroundColor: colors.white,
@@ -34,23 +36,5 @@ const App = () => {
     </AppProvider>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: colors.main,
-  },
-  contentWrapper: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-});
-
-// export default () => {
-//   return (
-//     <AppProvider>
-//       <App />
-//     </AppProvider>
-//   );
-// };
 
 export default App;

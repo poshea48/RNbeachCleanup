@@ -44,7 +44,7 @@ export interface PayloadType {
 
 export interface ActionType {
   type: string;
-  payload: PayloadType;
+  payload?: PayloadType;
 }
 
 export type DispatchType = (action: ActionType) => void;
