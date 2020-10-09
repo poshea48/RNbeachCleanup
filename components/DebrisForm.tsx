@@ -1,10 +1,12 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useState } from 'react';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { View, Text, StyleSheet } from 'react-native';
 import { Button, TextInput } from 'react-native-paper';
 import { Picker } from '@react-native-community/picker';
-import { useAppDispatch, useAppState } from '../context/appContext';
+import { useAppDispatch } from '../context/appContext';
 import colors from '../colors';
+import { TabParamList } from '../customTypes/navigation';
 
 const Debris = [
   'Select an Item',
@@ -33,18 +35,23 @@ const initErrorState = {
   message: '',
 };
 
-const checkIfNotANumber = (num) => {
+const checkIfNotANumber = (num: string) => {
   return num.match(/[A-Za-z]+/);
 };
-const DebrisForm = ({ navigation }) => {
+
+type DebrisNavProp = BottomTabNavigationProp<TabParamList, 'Debris'>;
+
+const DebrisForm: React.FC<{ navigation: DebrisNavProp }> = ({
+  navigation,
+}) => {
   const [debris, setDebris] = useState('');
   const [error, setError] = useState(initErrorState);
   const [count, setCount] = useState('');
   const dispatch = useAppDispatch();
-  const debrisDisplay = Debris.map((d, i) => (
+  const debrisDisplay = Debris.map((d) => (
     <Picker.Item key={d} label={d} value={d} />
   ));
-  const handleCountInput = (num) => {
+  const handleCountInput = (num: string) => {
     if (checkIfNotANumber(num)) {
       setError({
         isError: true,
@@ -90,6 +97,11 @@ const DebrisForm = ({ navigation }) => {
     setCount('');
   };
 
+  const handleValueChange = (value: React.ReactText) => {
+    value = String(value);
+    setDebris(value);
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.text}>What did you collect?</Text>
@@ -104,15 +116,16 @@ const DebrisForm = ({ navigation }) => {
           textTransform: 'uppercase',
         }}
         selectedValue={debris}
-        onValueChange={(value) => setDebris(value)}>
+        onValueChange={handleValueChange}>
         {debrisDisplay}
       </Picker>
       <View style={styles.keypad}>
         <TextInput
           mode="outlined"
           error={error.isError}
+          underlineColor={colors.main}
           theme={{
-            colors: { primary: colors.black, underlineColor: colors.main },
+            colors: { primary: colors.black },
           }}
           keyboardType="numeric"
           style={styles.keypadLook}
@@ -134,10 +147,9 @@ const DebrisForm = ({ navigation }) => {
         Collect it!
       </Button>
       <Button
-        style={styles.link}
         labelStyle={{ color: colors.gray, fontWeight: '800' }}
         onPress={() => navigation.navigate('Results')}>
-        Show Collected List
+        <Text style={styles.link}>Show Collected List</Text>
       </Button>
     </View>
   );
@@ -157,7 +169,7 @@ const styles = StyleSheet.create({
   },
   picker: {
     height: '40%',
-    color: colors.red,
+    color: colors.warning,
     marginTop: 20,
   },
   keypad: {

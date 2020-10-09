@@ -1,6 +1,5 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { StackNavigationProp } from '@react-navigation/stack';
 import DebrisForm from '../components/DebrisForm';
 import TrackerPage from '../components/TrackerPage';
 import ResultsPage from '../components/ResultsPage';
@@ -8,17 +7,14 @@ import LocationForm from '../components/LocationForm';
 import StartupInfo from '../components/StartupInfo';
 import Icon from '../components/Icon';
 import colors from '../colors';
-import {
-  CleanupTabParamList,
-  RootStackParamList,
-} from '../customTypes/navigation';
+import { TabParamList } from '../customTypes/navigation';
 
-const Tab = createBottomTabNavigator<CleanupTabParamList>();
+const Tab = createBottomTabNavigator<TabParamList>();
 
-type CleanupScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  'Cleanup'
->;
+// type CleanupScreenNavigationProp = StackNavigationProp<
+//   RootStackParamList,
+//   'Cleanup'
+// >;
 
 const CleanupPage: React.FC = () => {
   // const { started, location } = useAppState();

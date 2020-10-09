@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Switch, Text } from 'react-native-paper';
 import { useAppDispatch, useAppState } from '../context/appContext';
@@ -14,9 +14,9 @@ const StartupInfo = ({ navigation }) => {
     if (isGpsOn) {
       // get initial location data:
     }
-    const dateObject = new Date().toDateString();
+    const dateObject = new Date();
     const startTime = dateObject.getTime();
-    const date = dateObject.toLocalDateString();
+    const date = dateObject.toLocaleDateString();
 
     // context: {started: bool, finished: bool,
     // stats: {date,startTime,endTime,totalCollected,totalDistance,totalTime: 0,},

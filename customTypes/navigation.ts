@@ -3,7 +3,7 @@ export type RootStackParamList = {
   Cleanup: undefined;
 };
 
-export type CleanupTabParamList = {
+export type TabParamList = {
   Debris: undefined;
   Start: undefined;
   Location: undefined;

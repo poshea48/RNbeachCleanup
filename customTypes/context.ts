@@ -36,7 +36,7 @@ export interface AppState {
 export interface PayloadType {
   started?: boolean;
   finished?: boolean;
-  debris?: DebrisState;
+  debris?: { item: string; count: number };
   location?: LocationState;
   stats?: StatsState;
   tracker?: TrackerType;
