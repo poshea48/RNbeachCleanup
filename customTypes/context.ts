@@ -9,12 +9,12 @@ export interface LocationState {
 }
 
 export interface StatsState {
-  date: string;
-  startTime: number;
-  endTime: number;
-  totalCollected: number;
-  totalDistance: number;
-  totalTime: number;
+  date?: string;
+  startTime?: number;
+  endTime?: number;
+  totalCollected?: number;
+  totalDistance?: number;
+  totalTime?: number;
 }
 
 export interface TrackerType {

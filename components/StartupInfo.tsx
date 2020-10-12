@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { Switch, Text } from 'react-native-paper';
 import { useAppDispatch, useAppState } from '../context/appContext';
-
+import { TabParamList } from '../customTypes/navigation';
 import colors from '../colors';
 
-const StartupInfo = ({ navigation }) => {
+type StartNavProp = BottomTabNavigationProp<TabParamList, 'Debris'>;
+
+const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
+  navigation,
+}) => {
   const { started, tracker } = useAppState();
   const [isGpsOn, toggleGPS] = useState(started);
   const dispatch = useAppDispatch();
@@ -18,13 +23,15 @@ const StartupInfo = ({ navigation }) => {
     const startTime = dateObject.getTime();
     const date = dateObject.toLocaleDateString();
 
-    // context: {started: bool, finished: bool,
-    // stats: {date,startTime,endTime,totalCollected,totalDistance,totalTime: 0,},
-    // debris: {},
-    // location: {beachName,city,state}
-    // results: {totalCollected,totalDistance,totalTime,}
-    // tracker: {inUse, startGPS,positions,watchId]
-    // }
+    /**  context: {
+     started: bool,
+     finished: bool,
+     stats: {date,startTime,endTime,totalCollected,totalDistance,totalTime: 0,},
+     debris: {},
+     location: {beachName,city,state}
+     results: {totalCollected,totalDistance,totalTime,}
+     tracker: {inUse, startGPS,positions,watchId]
+    }*/
     dispatch({
       type: 'START_CLEANUP',
       payload: {
