@@ -139,12 +139,12 @@ const DebrisForm: React.FC<{ navigation: DebrisNavProp }> = ({
       <Button
         labelStyle={{
           fontWeight: '800',
-          color: '#fff',
+          color: colors.white,
         }}
         style={styles.button}
         mode="contained"
         onPress={submitDebris}>
-        Collect it!
+        <Text>Collect it!</Text>
       </Button>
       <Button
         labelStyle={{ color: colors.gray, fontWeight: '800' }}
@@ -176,11 +176,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  keypadText: {
-    color: 'black',
-    marginRight: 5,
-    marginTop: 6,
   },
   keypadLook: {
     height: 40,

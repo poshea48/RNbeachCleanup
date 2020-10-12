@@ -1,15 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
-import {
-  TextInput,
-  Title,
-  Button,
-  Caption,
-  Portal,
-  Modal,
-  Provider,
-} from 'react-native-paper';
-import { Picker } from '@react-native-community/picker';
+import { View, StyleSheet, FlatList, Text } from 'react-native';
+import { TextInput, Title, Button, Caption } from 'react-native-paper';
 
 import colors from '../colors';
 
@@ -86,7 +77,7 @@ const STATES = [
   'WY',
 ];
 
-const LocationForm = () => {
+const LocationForm: React.FC = () => {
   const [state, setState] = useState(initialState);
   const [suggestedStates, setSuggested] = useState(STATES);
   const [error, setError] = useState(initErrorState);
@@ -114,7 +105,7 @@ const LocationForm = () => {
     }
   };
 
-  const handleStateText = (value) => {
+  const handleStateText = (value: string) => {
     if (value.length > 2) {
       return;
     }
@@ -126,38 +117,41 @@ const LocationForm = () => {
       ...state,
       state: value.toUpperCase(),
     });
-    const newSuggest = STATES.filter((stateAbbrev, i) => {
+    const newSuggest = STATES.filter((stateAbbrev) => {
       return stateAbbrev.startsWith(value.toUpperCase());
     });
     setVisible(true);
     setSuggested(newSuggest);
   };
 
-  const handleSuggestedClick = (item) => {
+  const handleSuggestedClick = (item: string) => {
     setState({ ...state, state: item });
     setVisible(false);
     setSuggested(STATES);
   };
 
-  const SuggestedState = ({ item }) => {
+  const SuggestedState = ({ item }: { item: string }) => {
     return (
-      <View style={{ backgroundColor: '#fff' }}>
+      <View style={{ backgroundColor: colors.white }}>
         <Button
-          labelStyle={{ color: 'black', align: 'left' }}
-          onPress={handleSuggestedClick}>
-          {item}
+          labelStyle={{ color: colors.black }}
+          onPress={() => handleSuggestedClick(item)}>
+          <Text>{item}</Text>
         </Button>
       </View>
     );
   };
   return (
     <View style={styles.container}>
-      <Title style={styles.heading}>Add location Details</Title>
+      <Title style={styles.heading}>
+        <Text>Add location Details</Text>
+      </Title>
       <View style={styles.fieldContainer}>
         <TextInput
           theme={{
-            colors: { primary: colors.main, underlineColor: 'transparent' },
+            colors: { primary: colors.main },
           }}
+          underlineColor="transparent"
           keyboardType="numeric"
           style={styles.field}
           mode="outlined"
@@ -170,8 +164,9 @@ const LocationForm = () => {
         )}
         <TextInput
           theme={{
-            colors: { primary: colors.main, underlineColor: 'transparent' },
+            colors: { primary: colors.main },
           }}
+          underlineColor="transparent"
           keyboardType="numeric"
           style={styles.field}
           mode="outlined"
@@ -192,8 +187,9 @@ const LocationForm = () => {
         )}
         <TextInput
           theme={{
-            colors: { primary: colors.main, underlineColor: 'transparent' },
+            colors: { primary: colors.main },
           }}
+          underlineColor="transparent"
           keyboardType="numeric"
           style={styles.field}
           mode="outlined"
@@ -208,7 +204,7 @@ const LocationForm = () => {
           style={styles.button}
           mode="contained"
           onPress={handleSaveLocation}>
-          Save
+          <Text>Save</Text>
         </Button>
       </View>
     </View>
@@ -240,10 +236,6 @@ const styles = StyleSheet.create({
   },
   error: {
     color: colors.warning,
-  },
-  modal: {
-    backgroundColor: '#fff',
-    height: 50,
   },
 });
 
