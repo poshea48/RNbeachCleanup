@@ -1,11 +1,16 @@
 import React from 'react';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { SafeAreaView, Text, StyleSheet } from 'react-native';
 import { Button } from 'react-native-paper';
 import colors from '../colors';
 import { useAppState, useAppDispatch } from '../context/appContext';
-// import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { RootStackParamList } from '../customTypes/navigation';
 
-const Home = ({ navigation }) => {
+type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+
+const Home: React.FC<{ navigation: HomeScreenNavigationProp }> = ({
+  navigation,
+}) => {
   const { started } = useAppState();
   const dispatch = useAppDispatch();
   return (
@@ -26,7 +31,7 @@ const Home = ({ navigation }) => {
           contentStyle={contentStyle}
           mode="contained"
           style={styles.button}>
-          Continue Cleanup
+          <Text>Continue Cleanup</Text>
         </Button>
       )}
     </SafeAreaView>
@@ -48,13 +53,13 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: 'bold',
     textTransform: 'uppercase',
-    color: '#fff',
+    color: colors.white,
     marginBottom: 40,
     alignSelf: 'center',
   },
   button: {
     backgroundColor: colors.orange,
-    color: 'white',
+    color: colors.white,
     fontWeight: '700',
     textTransform: 'uppercase',
     alignSelf: 'center',

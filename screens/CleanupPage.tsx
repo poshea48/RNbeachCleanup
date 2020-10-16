@@ -1,6 +1,5 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useAppState } from '../context/appContext';
 import DebrisForm from '../components/DebrisForm';
 import TrackerPage from '../components/TrackerPage';
 import ResultsPage from '../components/ResultsPage';
@@ -8,17 +7,23 @@ import LocationForm from '../components/LocationForm';
 import StartupInfo from '../components/StartupInfo';
 import Icon from '../components/Icon';
 import colors from '../colors';
+import { TabParamList } from '../customTypes/navigation';
 
-const Tab = createBottomTabNavigator();
+const Tab = createBottomTabNavigator<TabParamList>();
 
-const CleanupPage = ({ navigation }) => {
-  const { started, location } = useAppState();
+// type CleanupScreenNavigationProp = StackNavigationProp<
+//   RootStackParamList,
+//   'Cleanup'
+// >;
+
+const CleanupPage: React.FC = () => {
+  // const { started, location } = useAppState();
 
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
+        tabBarIcon: ({ focused, color }) => {
+          let iconName = '';
 
           if (route.name === 'Start') {
             iconName = focused
@@ -55,19 +60,5 @@ const CleanupPage = ({ navigation }) => {
     </Tab.Navigator>
   );
 };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     paddingHorizontal: 10,
-//     paddingVertical: 20,
-//     alignItems: 'center',
-//   },
-//   heading: {
-//     fontSize: 18,
-//     fontWeight: 'bold',
-//     marginBottom: 10,
-//     alignSelf: 'center',
-//   },
-// });
 
 export default CleanupPage;
