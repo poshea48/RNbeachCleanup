@@ -42,7 +42,7 @@ const cleanupReducer = (state: AppState, action: ActionType) => {
       if (payload.debris) {
         const { item } = payload.debris;
         const count = Number(payload.debris.count);
-        let debris: DebrisState = { ...state.debris };
+        const debris: DebrisState = { ...state.debris };
         debris[item] ? (debris[item] += count) : (debris[item] = count);
         return {
           ...state,

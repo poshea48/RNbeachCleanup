@@ -4,7 +4,7 @@ import { View, StyleSheet, Pressable } from 'react-native';
 import { Switch, Text } from 'react-native-paper';
 import { useAppDispatch, useAppState } from '../context/appContext';
 import { TabParamList } from '../customTypes/navigation';
-import colors from '../colors';
+import colors from '../../colors';
 
 type StartNavProp = BottomTabNavigationProp<TabParamList, 'Debris'>;
 
