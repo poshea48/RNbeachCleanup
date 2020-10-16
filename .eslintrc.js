@@ -18,8 +18,8 @@ module.exports = {
     'prettier',
     'plugin:@typescript-eslint/recommended',
     'prettier/@typescript-eslint',
-    'plugin:react/recommended',
     'plugin:prettier/recommended',
+    'plugin:react/recommended',
   ],
   plugins: ['react', 'react-native', 'prettier'],
   env: {
@@ -33,5 +33,7 @@ module.exports = {
     'react-native/no-color-literals': 2,
     'react-native/no-raw-text': 2,
     'react-native/no-single-element-style-arrays': 2,
+    'react/display-name': 'off',
+    'react/prop-types': 'off',
   },
 };

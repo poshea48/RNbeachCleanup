@@ -23,7 +23,7 @@ const CleanupPage: React.FC = () => {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color }) => {
-          let iconName;
+          let iconName = '';
 
           if (route.name === 'Start') {
             iconName = focused

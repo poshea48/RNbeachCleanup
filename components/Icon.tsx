@@ -4,10 +4,15 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 interface IconType {
   name: string;
+  size: number;
+  color: string;
 }
-export default ({ name, ...props }: IconType) => (
+
+const IconComponent: React.FC<IconType> = ({ name, ...props }) => (
   <Icon
     name={Platform.OS === 'ios' ? `ios-${name}` : `md-${name}`}
     {...props}
   />
 );
+
+export default IconComponent;

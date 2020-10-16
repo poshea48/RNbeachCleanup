@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import colors from '../colors';
 
-const ResultsPage = () => {
+const ResultsPage: React.FC = () => {
   return (
     <View style={styles.container}>
       <Text>THis will be the results page</Text>
