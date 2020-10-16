@@ -6,7 +6,7 @@ import ResultsPage from '../components/ResultsPage';
 import LocationForm from '../components/LocationForm';
 import StartupInfo from '../components/StartupInfo';
 import Icon from '../components/Icon';
-import colors from '../colors';
+import colors from '../../colors';
 import { TabParamList } from '../customTypes/navigation';
 
 const Tab = createBottomTabNavigator<TabParamList>();

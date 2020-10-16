@@ -2,16 +2,16 @@ import 'react-native-gesture-handler';
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import Home from './screens/Home';
-import CleanupPage from './screens/CleanupPage';
+import Home from './src/screens/Home';
+import CleanupPage from './src/screens/CleanupPage';
 import colors from './colors';
-import { AppProvider } from './context/appContext';
+import { AppProvider } from './src/context/appContext';
 import { Provider as PaperProvider } from 'react-native-paper';
-import { RootStackParamList } from './customTypes/navigation';
+import { RootStackParamList } from './src/customTypes/navigation';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
-const App = () => {
+const App: React.FC = () => {
   return (
     <AppProvider>
       <PaperProvider>

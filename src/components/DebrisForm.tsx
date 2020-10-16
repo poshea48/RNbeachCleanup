@@ -5,7 +5,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Button, TextInput } from 'react-native-paper';
 import { Picker } from '@react-native-community/picker';
 import { useAppDispatch } from '../context/appContext';
-import colors from '../colors';
+import colors from '../../colors';
 import { TabParamList } from '../customTypes/navigation';
 
 const Debris = [

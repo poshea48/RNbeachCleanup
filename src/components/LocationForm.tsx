@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, FlatList, Text } from 'react-native';
 import { TextInput, Title, Button, Caption } from 'react-native-paper';
 
-import colors from '../colors';
+import colors from '../../colors';
 
 const initialState = {
   beachName: '',
