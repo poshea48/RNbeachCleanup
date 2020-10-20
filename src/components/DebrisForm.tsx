@@ -1,10 +1,9 @@
-/* eslint-disable react-native/no-inline-styles */
 import React, { useState } from 'react';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { View, Text, StyleSheet } from 'react-native';
 import { Button, TextInput } from 'react-native-paper';
 import { Picker } from '@react-native-community/picker';
-import { useAppDispatch } from '../context/appContext';
+import { useAppDispatch, useAppState } from '../context/appContext';
 import colors from '../../colors';
 import { TabParamList } from '../customTypes/navigation';
 
@@ -48,9 +47,12 @@ const DebrisForm: React.FC<{ navigation: DebrisNavProp }> = ({
   const [error, setError] = useState(initErrorState);
   const [count, setCount] = useState('');
   const dispatch = useAppDispatch();
+  const context = useAppState();
+
   const debrisDisplay = Debris.map((d) => (
     <Picker.Item key={d} label={d} value={d} />
   ));
+
   const handleCountInput = (num: string) => {
     if (checkIfNotANumber(num)) {
       setError({
@@ -101,7 +103,6 @@ const DebrisForm: React.FC<{ navigation: DebrisNavProp }> = ({
     value = String(value);
     setDebris(value);
   };
-
   return (
     <View style={styles.container}>
       <Text style={styles.text}>What did you collect?</Text>
@@ -151,6 +152,20 @@ const DebrisForm: React.FC<{ navigation: DebrisNavProp }> = ({
         onPress={() => navigation.navigate('Results')}>
         <Text style={styles.link}>Show Collected List</Text>
       </Button>
+      <View style={styles.locationInfoContainer}>
+        {context.location.city ? (
+          <View style={styles.locationBeachInfoContainer}>
+            <Text style={styles.locationInfoText}>
+              Beach: {context.location.beachName}
+            </Text>
+            <Text style={styles.locationInfoText}>
+              Location: {context.location.city}, {context.location.state}
+            </Text>
+          </View>
+        ) : (
+          <Text style={styles.locationInfoText}>No location set</Text>
+        )}
+      </View>
     </View>
   );
 };
@@ -202,6 +217,22 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textTransform: 'uppercase',
     fontWeight: '800',
+  },
+  locationInfoContainer: {
+    padding: 20,
+    marginTop: 10,
+    color: colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  locationInfoText: {
+    color: colors.white,
+    fontSize: 20,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  locationBeachInfoContainer: {
+    justifyContent: 'center',
   },
 });
 
