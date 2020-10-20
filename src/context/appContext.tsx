@@ -31,7 +31,7 @@ const initialState: AppState = {
   },
 };
 
-const cleanupReducer = (state: AppState, action: ActionType) => {
+const cleanupReducer = (state: AppState, action: ActionType): AppState => {
   const { type, payload } = action;
   switch (type) {
     case 'RESET':
@@ -39,29 +39,39 @@ const cleanupReducer = (state: AppState, action: ActionType) => {
         ...initialState,
       };
     case 'ADD_DEBRIS':
-      if (payload.debris) {
+      if (payload?.debris) {
         const { item } = payload.debris;
         const count = Number(payload.debris.count);
         const debris: DebrisState = { ...state.debris };
         debris[item] ? (debris[item] += count) : (debris[item] = count);
+        const oldTotal = state.stats.totalCollected
+          ? state.stats.totalCollected
+          : 0;
         return {
           ...state,
           debris,
           stats: {
             ...state.stats,
-            totalCollected: state.stats.totalCollected + count,
+            totalCollected: oldTotal + count,
           },
         };
       } else {
         return { ...state };
       }
-
+    case 'ADD_LOCATION':
+      return {
+        ...state,
+        location: {
+          ...state.location,
+          ...payload?.location,
+        },
+      };
     case 'ADD_START_LOCATION':
       return {
         ...state,
         tracker: {
           ...state.tracker,
-          ...payload.tracker,
+          ...payload?.tracker,
         },
       };
     case 'START_CLEANUP':
@@ -70,7 +80,7 @@ const cleanupReducer = (state: AppState, action: ActionType) => {
         started: true,
         stats: {
           ...state.stats,
-          ...payload.stats,
+          ...payload?.stats,
         },
       };
     case 'PAUSE':
@@ -103,7 +113,7 @@ const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 };
 
-const useAppState = () => {
+const useAppState = (): AppState => {
   const context = useContext(AppStateContext);
   if (!context) {
     throw new Error('useAppState must be used with an AppProvider');
@@ -111,7 +121,7 @@ const useAppState = () => {
   return context;
 };
 
-const useAppDispatch = () => {
+const useAppDispatch = (): DispatchType => {
   const context = useContext(AppDispatchContext);
   if (!context) {
     throw new Error('useAppDispatch must be used with an AppProvider');

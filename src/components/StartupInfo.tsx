@@ -14,7 +14,6 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
   const { started, tracker } = useAppState();
   const [isGpsOn, toggleGPS] = useState(started);
   const dispatch = useAppDispatch();
-
   const handleStartPress = () => {
     if (isGpsOn) {
       // get initial location data:
