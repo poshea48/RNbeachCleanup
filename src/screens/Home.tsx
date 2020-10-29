@@ -30,7 +30,10 @@ const Home: React.FC<{ navigation: HomeScreenNavigationProp }> = ({
         <Button
           contentStyle={contentStyle}
           mode="contained"
-          style={styles.button}>
+          style={styles.button}
+          onPress={() => {
+            navigation.navigate('Cleanup');
+          }}>
           <Text>Continue Cleanup</Text>
         </Button>
       )}
