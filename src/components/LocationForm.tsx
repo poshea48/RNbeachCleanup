@@ -70,8 +70,12 @@ const STATES = [
   'WY',
 ];
 
+function isValidState(state: string) {
+  return STATES.includes(state);
+}
+
 const LocationForm: React.FC = () => {
-  const [state, setState] = useState(initialState);
+  const [location, setLocation] = useState(initialState);
   const [suggestedStates, setSuggested] = useState(STATES);
   const [updated, setUpdated] = useState(false);
   const [error, setError] = useState(initErrorState);
@@ -81,35 +85,35 @@ const LocationForm: React.FC = () => {
 
   useEffect(() => {
     if (context.location.city) {
-      setState({
+      setLocation({
         ...context.location,
       });
     }
   }, [context.location]);
 
-  const handleButtonClick = () => {
+  const handleSaveLocation = () => {
     if (updated) {
       setUpdated(false);
     } else {
-      if (!state.city) {
+      if (!location.city) {
         setError({
           isError: true,
           state: 'city',
           message: '*Please enter the city you are in',
         });
-      } else if (!state.state || STATES.includes(state.state)) {
+      } else if (!location.state) {
         setError({
           isError: true,
           state: 'state',
           message: '*Please enter the state you are in',
         });
-      } else if (!STATES.includes(state.state)) {
+      } else if (!isValidState(location.state)) {
         setError({
           isError: true,
           state: 'state',
           message: '*Please enter a valid state',
         });
-      } else if (!state.beachName) {
+      } else if (!location.beachName) {
         setError({
           isError: true,
           state: 'beachName',
@@ -120,18 +124,20 @@ const LocationForm: React.FC = () => {
           type: 'ADD_LOCATION',
           payload: {
             location: {
-              city: state.city,
-              state: state.state,
-              beachName: state.beachName,
+              city: location.city,
+              state: location.state,
+              beachName: location.beachName,
             },
           },
         });
+        setError(initErrorState);
         setUpdated(true);
       }
     }
   };
 
   const handleStateText = (value: string) => {
+    value = value.toUpperCase();
     if (value.length > 2) {
       return;
     }
@@ -139,21 +145,36 @@ const LocationForm: React.FC = () => {
     if (value.match(/\d/)) {
       return;
     }
-    setState({
-      ...state,
-      state: value.toUpperCase(),
+    setLocation({
+      ...location,
+      state: value,
     });
-    const newSuggest = STATES.filter((stateAbbrev) => {
-      return stateAbbrev.startsWith(value.toUpperCase());
-    });
-    setSuggested(newSuggest);
-    if (newSuggest.length) {
-      setVisible(true);
+
+    // if user types in a valid state, then no need to show suggestions
+    if (isValidState(value)) {
+      console.log('we have a valid state, dont show suggestions');
+      setVisible(false);
+      if (error.isError) setError(initErrorState);
+    } else {
+      const newSuggest = STATES.filter((stateAbbrev) => {
+        return stateAbbrev.startsWith(value);
+      });
+      setSuggested(newSuggest);
+
+      if (newSuggest.length) {
+        setVisible(true);
+      } else {
+        setVisible(false);
+      }
     }
   };
 
+  // autocomplete state
   const handleSuggestedClick = (item: string) => {
-    setState({ ...state, state: item });
+    setLocation({ ...location, state: item });
+    if (error.isError) {
+      setError(initErrorState);
+    }
     setVisible(false);
     setSuggested(STATES);
   };
@@ -188,7 +209,7 @@ const LocationForm: React.FC = () => {
       setVisible(false);
     }
   };
-
+  console.log(`current state is ${location.state}`);
   const saveButtonBackground = updated
     ? { backgroundColor: colors.success }
     : { backgroundColor: colors.orange };
@@ -208,8 +229,8 @@ const LocationForm: React.FC = () => {
           style={styles.field}
           mode="outlined"
           label="City"
-          value={state.city}
-          onChangeText={(text) => setState({ ...state, city: text })}
+          value={location.city}
+          onChangeText={(text) => setLocation({ ...location, city: text })}
           onFocus={closeDropdown}
         />
         {error.isError && error.state === 'city' && (
@@ -226,7 +247,7 @@ const LocationForm: React.FC = () => {
             style={styles.field}
             mode="outlined"
             label="State"
-            value={state.state}
+            value={location.state}
             onChangeText={handleStateText}
           />
           {visible && (
@@ -251,8 +272,10 @@ const LocationForm: React.FC = () => {
             style={styles.field}
             mode="outlined"
             label="Beach Name"
-            value={state.beachName}
-            onChangeText={(text) => setState({ ...state, beachName: text })}
+            value={location.beachName}
+            onChangeText={(text) =>
+              setLocation({ ...location, beachName: text })
+            }
             onFocus={closeDropdown}
           />
           {error.isError && error.state === 'beachName' && (
@@ -262,7 +285,7 @@ const LocationForm: React.FC = () => {
           <Button
             style={[styles.button, saveButtonBackground]}
             mode="contained"
-            onPress={handleButtonClick}>
+            onPress={handleSaveLocation}>
             <Text>{updated ? 'Edit' : 'Save'}</Text>
           </Button>
         </View>
