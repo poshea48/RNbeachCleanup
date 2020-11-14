@@ -1,9 +1,10 @@
 /* eslint-disable react-native/no-raw-text */
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { DataTable, Headline, List, Divider } from 'react-native-paper';
 import { useAppState } from '../context/appContext';
 import colors from '../../colors';
+// import { DebrisState } from '../customTypes/context';
 
 const ResultsPage: React.FC = () => {
   const {
@@ -17,10 +18,84 @@ const ResultsPage: React.FC = () => {
       totalTime,
     },
   } = useAppState();
-  let displayRows;
+  const displayRows = getDebrisRows();
 
-  if (debris) {
-    displayRows = Object.keys(debris).map((item, i) => (
+  return (
+    <ScrollView scrollEnabled={true} style={{ backgroundColor: colors.white }}>
+      <View style={styles.container}>
+        <Headline style={styles.headline}>Final Results</Headline>
+        {debris ? (
+          <>
+            <DataTable style={styles.dataTable}>
+              <DataTable.Header style={{ paddingVertical: 0 }}>
+                <DataTable.Title>
+                  <Text style={styles.tableHeader}>Item Collected</Text>
+                </DataTable.Title>
+                <DataTable.Title numeric>
+                  <Text style={styles.tableHeader}>Total</Text>
+                </DataTable.Title>
+              </DataTable.Header>
+              {displayRows}
+              <DataTable.Header>
+                <DataTable.Title>
+                  <Text style={styles.tableHeader}>Total Collected:</Text>
+                </DataTable.Title>
+                <DataTable.Title numeric>
+                  <Text style={styles.total}>{totalCollected}</Text>
+                </DataTable.Title>
+              </DataTable.Header>
+            </DataTable>
+
+            <List.Accordion
+              title="Other Stats"
+              titleStyle={{ color: colors.main }}
+              style={styles.statsContainer}
+              left={(props) => (
+                <List.Icon {...props} color={colors.main} icon="clipboard" />
+              )}>
+              <View style={styles.statField}>
+                <Text style={styles.statTitle}>Todays Date:</Text>
+                <Text style={styles.statData}>{date}</Text>
+              </View>
+              <Divider style={styles.divider} />
+              <View style={styles.statField}>
+                <Text>Cleanup Start Time: </Text>
+                <Text style={styles.statData}>{getTimeString(startTime)}</Text>
+              </View>
+              <Divider style={styles.divider} />
+
+              <View style={styles.statField}>
+                <Text>Cleanup End Time:</Text>
+                <Text style={styles.statData}>{endTime}</Text>
+              </View>
+              <Divider style={styles.divider} />
+
+              <View style={styles.statField}>
+                <Text>TotalTime:</Text>
+                <Text style={styles.statData}>{totalTime}</Text>
+              </View>
+              <Divider style={styles.divider} />
+
+              <View style={styles.statField}>
+                <Text>Total Distance Traveled: </Text>
+                <Text style={styles.statData}>{totalDistance}</Text>
+              </View>
+            </List.Accordion>
+          </>
+        ) : (
+          <Headline>
+            <Text style={styles.noResults}>No results yet</Text>
+          </Headline>
+        )}
+      </View>
+    </ScrollView>
+  );
+
+  /****************** Util Functions **************************/
+
+  function getDebrisRows() {
+    if (!debris) return null;
+    return Object.keys(debris).map((item, i) => (
       <DataTable.Row key={`${item}-${i}`}>
         <DataTable.Cell>
           <Text style={styles.row}>{item}</Text>
@@ -31,74 +106,15 @@ const ResultsPage: React.FC = () => {
       </DataTable.Row>
     ));
   }
-  return (
-    <View style={styles.container}>
-      <Headline style={styles.headline}>Final Results</Headline>
-      {debris ? (
-        <>
-          <DataTable style={styles.dataTable}>
-            <DataTable.Header style={{ paddingVertical: 0 }}>
-              <DataTable.Title>
-                <Text style={styles.tableHeader}>Item Collected</Text>
-              </DataTable.Title>
-              <DataTable.Title numeric>
-                <Text style={styles.tableHeader}>Total</Text>
-              </DataTable.Title>
-            </DataTable.Header>
-            {displayRows}
-            <DataTable.Header>
-              <DataTable.Title>
-                <Text style={styles.tableHeader}>Total Collected:</Text>
-              </DataTable.Title>
-              <DataTable.Title numeric>
-                <Text style={styles.total}>{totalCollected}</Text>
-              </DataTable.Title>
-            </DataTable.Header>
-          </DataTable>
-
-          <List.Accordion
-            title="Other Stats"
-            titleStyle={{ color: colors.main }}
-            style={styles.statsContainer}
-            left={(props) => (
-              <List.Icon {...props} color={colors.main} icon="clipboard" />
-            )}>
-            <View style={styles.statField}>
-              <Text style={styles.statTitle}>Todays Date:</Text>
-              <Text style={styles.statData}>{date}</Text>
-            </View>
-            <Divider style={styles.divider} />
-            <View style={styles.statField}>
-              <Text>Cleanup Start Time: </Text>
-              <Text style={styles.statData}>{startTime}</Text>
-            </View>
-            <Divider style={styles.divider} />
-
-            <View style={styles.statField}>
-              <Text>Cleanup End Time:</Text>
-              <Text style={styles.statData}>{endTime}</Text>
-            </View>
-            <Divider style={styles.divider} />
-
-            <View style={styles.statField}>
-              <Text>TotalTime:</Text>
-              <Text style={styles.statData}>{totalTime}</Text>
-            </View>
-            <Divider style={styles.divider} />
-
-            <View style={styles.statField}>
-              <Text>Total Distance Traveled: </Text>
-              <Text style={styles.statData}>{totalDistance}</Text>
-            </View>
-          </List.Accordion>
-        </>
-      ) : (
-        <Headline>
-          <Text style={styles.noResults}>No results yet</Text>
-        </Headline>
-      )}
-    </View>
-  );
+  function getTimeString(time: number | undefined) {
+    if (!time) return '';
+    const timeString = new Date(time).toLocaleTimeString();
+    const [clock, meridiem] = timeString.split(' ');
+    return `${clock
+      .split(':')
+      .slice(0, 2)
+      .join(':')} ${meridiem.toLowerCase()}`;
+  }
 };
 
 const styles = StyleSheet.create({

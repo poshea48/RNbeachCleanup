@@ -122,9 +122,7 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
             styles.button,
             styles.startButton,
           ]}>
-          <Text style={[styles.buttonText, styles.startButtonText]}>
-            START!
-          </Text>
+          <Text style={styles.buttonText}>START!</Text>
         </Pressable>
       )}
       {started && (
@@ -224,9 +222,6 @@ const styles = StyleSheet.create({
   },
   resetButtonText: {
     color: colors.black,
-  },
-  startButtonText: {
-    color: colors.main,
   },
 });
 
