@@ -1,5 +1,8 @@
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {
+  BottomTabBarButtonProps,
+  createBottomTabNavigator,
+} from '@react-navigation/bottom-tabs';
 import DebrisForm from '../components/DebrisForm';
 import TrackerPage from '../components/TrackerPage';
 import ResultsPage from '../components/ResultsPage';
@@ -8,6 +11,8 @@ import StartupInfo from '../components/StartupInfo';
 import Icon from '../components/Icon';
 import colors from '../../colors';
 import { TabParamList } from '../customTypes/navigation';
+import { useAppState } from '../context/appContext';
+import { TouchableOpacity } from 'react-native';
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
@@ -17,7 +22,14 @@ const Tab = createBottomTabNavigator<TabParamList>();
 // >;
 
 const CleanupPage: React.FC = () => {
-  // const { started, location } = useAppState();
+  const { started } = useAppState();
+
+  const tabVisibleOption = {
+    tabBarVisible: started,
+    tabBarButton: started
+      ? (props: BottomTabBarButtonProps) => <TouchableOpacity {...props} />
+      : () => null,
+  };
 
   return (
     <Tab.Navigator
@@ -49,13 +61,22 @@ const CleanupPage: React.FC = () => {
         style: { backgroundColor: colors.white },
       }}>
       <Tab.Screen name="Start" component={StartupInfo} />
+
       <Tab.Screen
         name="Debris"
         component={DebrisForm}
-        options={{ title: 'Debris Form' }}
+        options={tabVisibleOption}
       />
-      <Tab.Screen name="Tracker" component={TrackerPage} />
-      <Tab.Screen name="Results" component={ResultsPage} />
+      <Tab.Screen
+        name="Tracker"
+        component={TrackerPage}
+        options={tabVisibleOption}
+      />
+      <Tab.Screen
+        name="Results"
+        component={ResultsPage}
+        options={tabVisibleOption}
+      />
       <Tab.Screen name="Location" component={LocationForm} />
     </Tab.Navigator>
   );

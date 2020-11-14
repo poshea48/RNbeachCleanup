@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
-import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { View, Text, StyleSheet } from 'react-native';
-import { Button, TextInput } from 'react-native-paper';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { TextInput } from 'react-native-paper';
 import { Picker } from '@react-native-community/picker';
 import { useAppDispatch, useAppState } from '../context/appContext';
 import colors from '../../colors';
-import { TabParamList } from '../customTypes/navigation';
 
 const Debris = [
   'Select an Item',
@@ -38,71 +36,25 @@ const checkIfNotANumber = (num: string) => {
   return num.match(/[A-Za-z]+/);
 };
 
-type DebrisNavProp = BottomTabNavigationProp<TabParamList, 'Debris'>;
+// type DebrisNavProp = BottomTabNavigationProp<TabParamList, 'Debris'>;
 
-const DebrisForm: React.FC<{ navigation: DebrisNavProp }> = ({
-  navigation,
-}) => {
+const DebrisForm: React.FC = () => {
   const [debris, setDebris] = useState('');
   const [error, setError] = useState(initErrorState);
+  const [success, setSuccess] = useState(false);
   const [count, setCount] = useState('');
   const dispatch = useAppDispatch();
   const context = useAppState();
-
-  const debrisDisplay = Debris.map((d) => (
+  const pickerItemsDisplay = Debris.map((d) => (
     <Picker.Item key={d} label={d} value={d} />
   ));
 
-  const handleCountInput = (num: string) => {
-    if (checkIfNotANumber(num)) {
-      setError({
-        isError: true,
-        message: 'Count must be a number',
-      });
-      setCount('');
-      return;
+  useEffect(() => {
+    if (success && (!context.started || context.finished)) {
+      setSuccess(false);
     }
-    setError(initErrorState);
-    setCount(num);
-  };
-  const submitDebris = () => {
-    if (!count) {
-      setError({
-        isError: true,
-        message: '*Please add a count for this item collected',
-      });
-      return;
-    }
-    if (checkIfNotANumber(count)) {
-      setError({
-        isError: true,
-        message: '*Count must be a number',
-      });
-      return;
-    }
-    if (!debris || debris === 'Select an Item') {
-      setError({
-        isError: true,
-        message: '*Please select an item',
-      });
-    }
-    dispatch({
-      type: 'ADD_DEBRIS',
-      payload: {
-        debris: {
-          item: debris,
-          count: Number(count),
-        },
-      },
-    });
-    setDebris('');
-    setCount('');
-  };
-
-  const handleValueChange = (value: React.ReactText) => {
-    value = String(value);
-    setDebris(value);
-  };
+    return () => setSuccess(false);
+  }, [success, context.started, context.finished]);
   return (
     <View style={styles.container}>
       <Text style={styles.text}>What did you collect?</Text>
@@ -117,9 +69,10 @@ const DebrisForm: React.FC<{ navigation: DebrisNavProp }> = ({
           textTransform: 'uppercase',
         }}
         selectedValue={debris}
-        onValueChange={handleValueChange}>
-        {debrisDisplay}
+        onValueChange={handlePickerItemChange}>
+        {pickerItemsDisplay}
       </Picker>
+      {success && <Text style={styles.successMessage}>✓ Item Collected</Text>}
       <View style={styles.keypad}>
         <TextInput
           mode="outlined"
@@ -136,22 +89,26 @@ const DebrisForm: React.FC<{ navigation: DebrisNavProp }> = ({
         />
         {error.isError && <Text style={styles.error}>{error.message}</Text>}
       </View>
+      <Pressable
+        onPress={() => submitDebris()}
+        style={({ pressed }) => [
+          {
+            transform: [
+              { translateX: pressed ? 5 : 0 },
+              { translateY: pressed ? 5 : 0 },
+            ],
+            shadowColor: pressed ? 'transparent' : colors.black,
+            shadowOffset: pressed
+              ? { width: 0, height: 0 }
+              : { width: 5, height: 5 },
+            shadowOpacity: 1.0,
+          },
+          styles.button,
+          styles.startButton,
+        ]}>
+        <Text style={styles.buttonText}>Collect!</Text>
+      </Pressable>
 
-      <Button
-        labelStyle={{
-          fontWeight: '800',
-          color: colors.white,
-        }}
-        style={styles.button}
-        mode="contained"
-        onPress={submitDebris}>
-        <Text>Collect it!</Text>
-      </Button>
-      <Button
-        labelStyle={{ color: colors.gray, fontWeight: '800' }}
-        onPress={() => navigation.navigate('Results')}>
-        <Text style={styles.link}>Show Collected List</Text>
-      </Button>
       <View style={styles.locationInfoContainer}>
         {context.location.city ? (
           <View style={styles.locationBeachInfoContainer}>
@@ -168,24 +125,94 @@ const DebrisForm: React.FC<{ navigation: DebrisNavProp }> = ({
       </View>
     </View>
   );
+
+  /************************ Util functions ********************************/
+
+  function handleCountInput(num: string) {
+    // turn off collected message when user starts new item collection
+    if (success) setSuccess(false);
+
+    if (checkIfNotANumber(num)) {
+      setError({
+        isError: true,
+        message: 'Count must be a number',
+      });
+      setCount('');
+      return;
+    }
+    setError(initErrorState);
+    setCount(num);
+  }
+
+  function submitDebris() {
+    if (!count) {
+      setError({
+        isError: true,
+        message: '*Please add a count for this item collected',
+      });
+      return;
+    }
+    if (checkIfNotANumber(count)) {
+      setError({
+        isError: true,
+        message: '*Count must be a number',
+      });
+      return;
+    }
+
+    // debris will always be a string
+    // eslint-disable-next-line eqeqeq
+    if (!debris || debris == 'Select an Item') {
+      setError({
+        isError: true,
+        message: '*Please select an item',
+      });
+      return;
+    }
+    dispatch({
+      type: 'ADD_DEBRIS',
+      payload: {
+        debris: {
+          item: debris,
+          count: Number(count),
+        },
+      },
+    });
+    setSuccess(true);
+    setDebris('');
+    setCount('');
+  }
+
+  function handlePickerItemChange(value: React.ReactText) {
+    // turn off collected message when user starts new item collection
+    if (success) setSuccess(false);
+    value = String(value);
+    setDebris(value);
+  }
 };
 
 const styles = StyleSheet.create({
   container: {
     paddingTop: 20,
-    backgroundColor: colors.main,
+    backgroundColor: colors.white,
     height: '100%',
   },
   text: {
-    color: colors.orange,
+    color: colors.main,
     fontSize: 30,
     textAlign: 'center',
     fontWeight: '800',
   },
   picker: {
     height: '40%',
-    color: colors.warning,
+    color: colors.white,
     marginTop: 20,
+  },
+  successMessage: {
+    color: colors.success,
+    alignSelf: 'center',
+    fontSize: 20,
+    fontWeight: '800',
   },
   keypad: {
     alignSelf: 'center',
@@ -199,19 +226,27 @@ const styles = StyleSheet.create({
     borderColor: colors.main,
   },
   button: {
+    justifyContent: 'center',
     marginVertical: 10,
-    paddingVertical: 5,
-    width: 150,
-    backgroundColor: colors.orange,
+    // paddingVertical: 10,
+    borderRadius: 5,
+    width: 200,
+    height: 50,
+    backgroundColor: colors.main,
     alignSelf: 'center',
     fontWeight: '800',
-    shadowColor: colors.black,
-    shadowOffset: { width: 8, height: 8 },
-    shadowOpacity: 1.0,
   },
-  link: {
-    color: colors.orange,
+  buttonText: {
+    color: colors.main,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    alignSelf: 'center',
+    textAlign: 'center',
   },
+  startButton: {
+    backgroundColor: colors.orange,
+  },
+
   error: {
     color: colors.warning,
     fontSize: 12,
@@ -221,12 +256,12 @@ const styles = StyleSheet.create({
   locationInfoContainer: {
     padding: 20,
     marginTop: 10,
-    color: colors.white,
+    color: colors.warning,
     justifyContent: 'center',
     alignItems: 'center',
   },
   locationInfoText: {
-    color: colors.white,
+    color: colors.black,
     fontSize: 20,
     marginBottom: 10,
     textAlign: 'center',
