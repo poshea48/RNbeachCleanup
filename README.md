@@ -1,4 +1,4 @@
-# RNbeachCleanup
+
 ## Beach Cleanup Mobile App
 
 • Built using React Native
@@ -9,7 +9,8 @@
 
 • Add location details
 
-NOT COMPLETED YET
+### NOT COMPLETED YET
+
 • Add GPS location to keep track of distance traveled
 
 • Submit data in csv file to email of your choice
