@@ -1,4 +1,3 @@
-
 ## Beach Cleanup Mobile App
 
 • Built using React Native
@@ -14,4 +13,3 @@
 • Add GPS location to keep track of distance traveled
 
 • Submit data in csv file to email of your choice
-

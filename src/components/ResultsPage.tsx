@@ -4,10 +4,10 @@ import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { DataTable, Headline, List, Divider } from 'react-native-paper';
 import { useAppState } from '../context/appContext';
 import colors from '../../colors';
-// import { DebrisState } from '../customTypes/context';
 
 const ResultsPage: React.FC = () => {
   const {
+    finished,
     debris,
     stats: {
       date,
@@ -23,7 +23,9 @@ const ResultsPage: React.FC = () => {
   return (
     <ScrollView scrollEnabled={true} style={{ backgroundColor: colors.white }}>
       <View style={styles.container}>
-        <Headline style={styles.headline}>Final Results</Headline>
+        <Headline style={styles.headline}>
+          {finished && 'Final'} Results
+        </Headline>
         {debris ? (
           <>
             <DataTable style={styles.dataTable}>

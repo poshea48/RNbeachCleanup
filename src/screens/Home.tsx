@@ -42,7 +42,8 @@ const Home: React.FC<{ navigation: HomeScreenNavigationProp }> = ({
 };
 
 const contentStyle = {
-  width: 220,
+  width: 200,
+  height: 50,
 };
 
 const styles = StyleSheet.create({
