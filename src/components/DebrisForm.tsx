@@ -81,7 +81,7 @@ const DebrisForm: React.FC = () => {
           theme={{
             colors: { primary: colors.black },
           }}
-          keyboardType="numeric"
+          keyboardType="number-pad"
           style={styles.keypadLook}
           value={count}
           onChangeText={handleCountInput}

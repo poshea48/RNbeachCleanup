@@ -152,7 +152,6 @@ const LocationForm: React.FC = () => {
 
     // if user types in a valid state, then no need to show suggestions
     if (isValidState(value)) {
-      console.log('we have a valid state, dont show suggestions');
       setVisible(false);
       if (error.isError) setError(initErrorState);
     } else {
@@ -209,7 +208,6 @@ const LocationForm: React.FC = () => {
       setVisible(false);
     }
   };
-  console.log(`current state is ${location.state}`);
   const saveButtonBackground = updated
     ? { backgroundColor: colors.success }
     : { backgroundColor: colors.orange };
