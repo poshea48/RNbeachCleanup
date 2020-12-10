@@ -1,11 +1,24 @@
 /* eslint-disable react-native/no-raw-text */
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  RefreshControl,
+} from 'react-native';
 import { DataTable, Headline, List, Divider } from 'react-native-paper';
 import { useAppState } from '../context/appContext';
 import colors from '../../colors';
 
+function wait(timeout: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, timeout);
+  });
+}
+
 const ResultsPage: React.FC = () => {
+  const [refreshing, setRefreshing] = useState(false);
   const {
     finished,
     debris,
@@ -20,8 +33,18 @@ const ResultsPage: React.FC = () => {
   } = useAppState();
   const displayRows = getDebrisRows();
 
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    wait(2000).then(() => setRefreshing(false));
+  }, []);
+
   return (
-    <ScrollView scrollEnabled={true} style={{ backgroundColor: colors.white }}>
+    <ScrollView
+      scrollEnabled={true}
+      style={{ backgroundColor: colors.white }}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }>
       <View style={styles.container}>
         <Headline style={styles.headline}>
           {finished && 'Final'} Results
@@ -94,7 +117,6 @@ const ResultsPage: React.FC = () => {
   );
 
   /****************** Util Functions **************************/
-
   function getDebrisRows() {
     if (!debris) return null;
     return Object.keys(debris).map((item, i) => (
