@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { View, StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable, Modal } from 'react-native';
 import { Switch, Text } from 'react-native-paper';
 import { useAppDispatch, useAppState } from '../context/appContext';
 import { TabParamList } from '../customTypes/navigation';
@@ -13,53 +13,8 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
 }) => {
   const { started, tracker } = useAppState();
   const [isGpsOn, toggleGPS] = useState(started);
+  const [open, setOpen] = useState(false);
   const dispatch = useAppDispatch();
-  const handleStartPress = () => {
-    if (isGpsOn) {
-      // get initial location data:
-    }
-    const dateObject = new Date();
-    const startTime = dateObject.getTime();
-    const date = dateObject.toLocaleDateString();
-
-    /**  context: {
-     started: bool,
-     finished: bool,
-     stats: {date,startTime,endTime,totalCollected,totalDistance,totalTime: 0,},
-     debris: {},
-     location: {beachName,city,state}
-     results: {totalCollected,totalDistance,totalTime,}
-     tracker: {inUse, startGPS,positions,watchId]
-    }*/
-    dispatch({
-      type: 'START_CLEANUP',
-      payload: {
-        started: true,
-        stats: {
-          date,
-          startTime,
-        },
-        tracker: {
-          ...tracker,
-          inUse: isGpsOn,
-        },
-      },
-    });
-    navigation.navigate('Debris');
-  };
-
-  const handleResetPress = () => {
-    toggleGPS(false);
-    dispatch({
-      type: 'RESET',
-      payload: {
-        tracker: {
-          ...tracker,
-          inUse: isGpsOn,
-        },
-      },
-    });
-  };
 
   return (
     <View style={styles.container}>
@@ -146,8 +101,84 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
           <Text style={[styles.buttonText, styles.resetButtonText]}>Reset</Text>
         </Pressable>
       )}
+      <Modal animationType="slide" transparent={true} visible={open}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalView}>
+            <View style={styles.modalTitleContainer}>
+              <Text style={styles.modalText}>Are you sure?</Text>
+              <Text style={styles.modalText}>You will lose all your data</Text>
+            </View>
+            <View style={styles.modalResetButtonsContainer}>
+              <Pressable
+                style={styles.modalResetButton}
+                onPress={handleModalReset}>
+                <Text style={styles.modalResetButtonText}>Yes, Reset</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.modalResetButton, styles.modalResetButtonNo]}
+                onPress={() => setOpen(false)}>
+                <Text style={styles.modalResetButtonText}>No, Cancel</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
+
+  /*********** Util Functions *************/
+
+  function handleStartPress() {
+    if (isGpsOn) {
+      // get initial location data:
+    }
+    const dateObject = new Date();
+    const startTime = dateObject.getTime();
+    const date = dateObject.toLocaleDateString();
+
+    /**  context: {
+     started: bool,
+     finished: bool,
+     stats: {date,startTime,endTime,totalCollected,totalDistance,totalTime: 0,},
+     debris: {},
+     location: {beachName,city,state}
+     results: {totalCollected,totalDistance,totalTime,}
+     tracker: {inUse, startGPS,positions,watchId]
+    }*/
+    dispatch({
+      type: 'START_CLEANUP',
+      payload: {
+        started: true,
+        stats: {
+          date,
+          startTime,
+        },
+        tracker: {
+          ...tracker,
+          inUse: isGpsOn,
+        },
+      },
+    });
+    navigation.navigate('Debris');
+  }
+
+  function handleResetPress() {
+    setOpen(true);
+  }
+
+  function handleModalReset() {
+    toggleGPS(false);
+    dispatch({
+      type: 'RESET',
+      payload: {
+        tracker: {
+          ...tracker,
+          inUse: isGpsOn,
+        },
+      },
+    });
+    setOpen(false);
+  }
 };
 
 const styles = StyleSheet.create({
@@ -222,6 +253,61 @@ const styles = StyleSheet.create({
   },
   resetButtonText: {
     color: colors.black,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    marginBottom: 140,
+  },
+  modalView: {
+    width: 300,
+    height: 200,
+    backgroundColor: colors.orange,
+    borderRadius: 20,
+    padding: 15,
+    paddingBottom: 25,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    shadowColor: colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  modalText: {
+    color: colors.black,
+    fontWeight: '900',
+    fontSize: 18,
+    textAlign: 'center',
+    textTransform: 'uppercase',
+    marginBottom: 10,
+  },
+  modalTitleContainer: {
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
+  modalResetButtonsContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  modalResetButton: {
+    width: 100,
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: colors.gray,
+  },
+  modalResetButtonNo: {
+    backgroundColor: colors.main,
+  },
+  modalResetButtonText: {
+    color: colors.white,
+    fontWeight: '800',
+    textAlign: 'center',
   },
 });
 

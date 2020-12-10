@@ -16,11 +16,6 @@ import { TouchableOpacity } from 'react-native';
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
-// type CleanupScreenNavigationProp = StackNavigationProp<
-//   RootStackParamList,
-//   'Cleanup'
-// >;
-
 const CleanupPage: React.FC = () => {
   const { started } = useAppState();
 
