@@ -1,30 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, FlatList } from 'react-native';
 import { TextInput } from 'react-native-paper';
-import { Picker } from '@react-native-community/picker';
 import { useAppDispatch, useAppState } from '../context/appContext';
 import colors from '../../colors';
-
-const Debris = [
-  'Batteries',
-  'Beverage containers-Metal',
-  'Beverage containers-Glass',
-  'Bottle caps',
-  'Cigarette butts',
-  'Clothes/Fabrics',
-  'Fishing gear - Line/nets/rope',
-  'Fishing gear - Floats/buoys',
-  'Flip-flops',
-  'Food wrappers',
-  'Items/pieces - Glass',
-  'Items/pieces - Metal',
-  'Items/pieces - Plastic',
-  'Paper/cardboard',
-  'Plastic bags',
-  'Six-pack rings',
-  'Styrofoam',
-  'Other',
-];
 
 const initErrorState = {
   isError: false,
@@ -46,10 +24,13 @@ const FlatListItemSeparator = () => {
     />
   );
 };
+
 // type DebrisNavProp = BottomTabNavigationProp<TabParamList, 'Debris'>;
 
 const DebrisForm: React.FC = () => {
   const [debris, setDebris] = useState('');
+  const [otherDebris, setOtherDebris] = useState('');
+  const [otherOpen, setOtherOpen] = useState(false);
   const [error, setError] = useState(initErrorState);
   const [success, setSuccess] = useState(false);
   const [count, setCount] = useState('');
@@ -67,11 +48,27 @@ const DebrisForm: React.FC = () => {
       <Text style={styles.text}>What did you collect?</Text>
       <FlatList
         style={styles.debrisList}
-        data={Debris}
+        data={context.debrisList}
         keyExtractor={(item) => item}
         renderItem={({ item }) => itemView(item)}
         ItemSeparatorComponent={FlatListItemSeparator}
       />
+      {otherOpen && (
+        <View style={styles.otherItemView}>
+          <TextInput
+            keyboardType="default"
+            onChangeText={(text) => {
+              setOtherDebris(text);
+            }}
+            value={otherDebris}
+            label="Add an Item"
+            style={{
+              width: '100%',
+              margin: 0,
+            }}
+          />
+        </View>
+      )}
       {success && <Text style={styles.successMessage}>✓ Item Collected</Text>}
       <View style={styles.keypad}>
         <TextInput
@@ -126,7 +123,7 @@ const DebrisForm: React.FC = () => {
     </View>
   );
 
-  /***************** Util functions ********************/
+  /**************** Util functions ******************/
 
   function itemView(item: string) {
     return (
@@ -151,6 +148,7 @@ const DebrisForm: React.FC = () => {
       </View>
     );
   }
+
   function handleCountInput(num: string) {
     // turn off collected message when user starts new item collection
     if (success) setSuccess(false);
@@ -207,6 +205,9 @@ const DebrisForm: React.FC = () => {
   }
 
   function handleItemSelect(value: React.ReactText) {
+    if (value == 'Other') {
+      setOtherOpen(true);
+    }
     // turn off collected message when user starts new item collection
     if (success) setSuccess(false);
     if (error) setError(initErrorState);
@@ -228,7 +229,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   debrisList: {
-    height: '50%',
     backgroundColor: colors.main,
   },
   debrisItemView: {
@@ -236,6 +236,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 10,
+  },
+  otherItemView: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   debrisItemText: {
     color: colors.black,

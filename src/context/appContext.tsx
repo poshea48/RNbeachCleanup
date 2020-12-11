@@ -9,10 +9,32 @@ import {
 const AppStateContext = createContext<AppState | null>(null);
 const AppDispatchContext = createContext<DispatchType | null>(null);
 
+const DebrisList = [
+  'Batteries',
+  'Beverage containers-Metal',
+  'Beverage containers-Glass',
+  'Bottle caps',
+  'Cigarette butts',
+  'Clothes/Fabrics',
+  'Fishing gear - Line/nets/rope',
+  'Fishing gear - Floats/buoys',
+  'Flip-flops',
+  'Food wrappers',
+  'Items/pieces - Glass',
+  'Items/pieces - Metal',
+  'Items/pieces - Plastic',
+  'Paper/cardboard',
+  'Plastic bags',
+  'Six-pack rings',
+  'Styrofoam',
+  'Other',
+];
+
 const initialState: AppState = {
   started: false,
   finished: false,
   debris: null,
+  debrisList: DebrisList,
   location: {
     beachName: '',
     city: '',

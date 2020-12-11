@@ -28,6 +28,7 @@ export interface AppState {
   started: boolean;
   finished: boolean;
   debris: null | DebrisState;
+  debrisList: string[];
   location: LocationState;
   stats: StatsState;
   tracker: TrackerType;
