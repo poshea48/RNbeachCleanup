@@ -35,6 +35,17 @@ const checkIfNotANumber = (num: string) => {
   return num.match(/[A-Za-z]+/);
 };
 
+const FlatListItemSeparator = () => {
+  return (
+    <View
+      style={{
+        height: 1,
+        width: '100%',
+        backgroundColor: colors.gray,
+      }}
+    />
+  );
+};
 // type DebrisNavProp = BottomTabNavigationProp<TabParamList, 'Debris'>;
 
 const DebrisForm: React.FC = () => {
@@ -51,17 +62,6 @@ const DebrisForm: React.FC = () => {
     }
   }, [success, context.started, context.finished, error.isError]);
 
-  const FlatListItemSeparator = () => {
-    return (
-      <View
-        style={{
-          height: 1,
-          width: '100%',
-          backgroundColor: colors.gray,
-        }}
-      />
-    );
-  };
   return (
     <View style={styles.container}>
       <Text style={styles.text}>What did you collect?</Text>
