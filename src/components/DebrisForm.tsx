@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, FlatList } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import { Picker } from '@react-native-community/picker';
 import { useAppDispatch, useAppState } from '../context/appContext';
 import colors from '../../colors';
 
 const Debris = [
-  'Select an Item',
   'Batteries',
   'Beverage containers-Metal',
   'Beverage containers-Glass',
@@ -45,33 +44,34 @@ const DebrisForm: React.FC = () => {
   const [count, setCount] = useState('');
   const dispatch = useAppDispatch();
   const context = useAppState();
-  const pickerItemsDisplay = Debris.map((d) => (
-    <Picker.Item key={d} label={d} value={d} />
-  ));
 
   useEffect(() => {
-    if (success && (!context.started || context.finished)) {
+    if (success && (!context.started || context.finished || error.isError)) {
       setSuccess(false);
     }
-    return () => setSuccess(false);
-  }, [success, context.started, context.finished]);
+  }, [success, context.started, context.finished, error.isError]);
+
+  const FlatListItemSeparator = () => {
+    return (
+      <View
+        style={{
+          height: 1,
+          width: '100%',
+          backgroundColor: colors.gray,
+        }}
+      />
+    );
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.text}>What did you collect?</Text>
-      <Picker
-        style={styles.picker}
-        itemStyle={{
-          paddingVertical: 80,
-          color: colors.black,
-          fontSize: 30,
-          fontWeight: '800',
-          lineHeight: 100,
-          textTransform: 'uppercase',
-        }}
-        selectedValue={debris}
-        onValueChange={handlePickerItemChange}>
-        {pickerItemsDisplay}
-      </Picker>
+      <FlatList
+        style={styles.debrisList}
+        data={Debris}
+        keyExtractor={(item) => item}
+        renderItem={({ item }) => itemView(item)}
+        ItemSeparatorComponent={FlatListItemSeparator}
+      />
       {success && <Text style={styles.successMessage}>✓ Item Collected</Text>}
       <View style={styles.keypad}>
         <TextInput
@@ -126,8 +126,31 @@ const DebrisForm: React.FC = () => {
     </View>
   );
 
-  /************************ Util functions ********************************/
+  /***************** Util functions ********************/
 
+  function itemView(item: string) {
+    return (
+      <View
+        style={[
+          styles.debrisItemView,
+          {
+            backgroundColor: item == debris ? colors.success : colors.white,
+          },
+        ]}>
+        <Pressable onPress={() => handleItemSelect(item)}>
+          <Text
+            style={[
+              styles.debrisItemText,
+              {
+                color: item == debris ? colors.white : colors.black,
+              },
+            ]}>
+            {item}
+          </Text>
+        </Pressable>
+      </View>
+    );
+  }
   function handleCountInput(num: string) {
     // turn off collected message when user starts new item collection
     if (success) setSuccess(false);
@@ -183,9 +206,10 @@ const DebrisForm: React.FC = () => {
     setCount('');
   }
 
-  function handlePickerItemChange(value: React.ReactText) {
+  function handleItemSelect(value: React.ReactText) {
     // turn off collected message when user starts new item collection
     if (success) setSuccess(false);
+    if (error) setError(initErrorState);
     value = String(value);
     setDebris(value);
   }
@@ -203,13 +227,26 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '800',
   },
-  picker: {
-    height: '40%',
-    color: colors.white,
-    marginTop: 20,
+  debrisList: {
+    height: '50%',
+    backgroundColor: colors.main,
+  },
+  debrisItemView: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+  },
+  debrisItemText: {
+    color: colors.black,
+    fontSize: 20,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+    textAlign: 'center',
   },
   successMessage: {
     color: colors.success,
+    marginTop: 20,
     alignSelf: 'center',
     fontSize: 20,
     fontWeight: '800',
