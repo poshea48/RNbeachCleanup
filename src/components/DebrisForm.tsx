@@ -182,29 +182,66 @@ const DebrisForm: React.FC = () => {
     }
 
     // debris will always be a string
-    // eslint-disable-next-line eqeqeq
-    if (!debris || debris == 'Select an Item') {
+    // if debris is empty and not other
+    if (!debris && debris != 'Other') {
       setError({
         isError: true,
         message: '*Please select an item',
       });
       return;
     }
-    dispatch({
-      type: 'ADD_DEBRIS',
-      payload: {
-        debris: {
-          item: debris,
-          count: Number(count),
+
+    // Handle if other was touched
+    if (debris == 'Other') {
+      // no input
+      if (!otherDebris) {
+        setError({
+          isError: true,
+          message: '*Please type in a new item',
+        });
+        return;
+      }
+      // if input is already in debris list
+      if (
+        context.debrisList.find(
+          (item) => item.toLowerCase() == otherDebris.toLowerCase(),
+        )
+      ) {
+        setError({
+          isError: true,
+          message: '*This item is already on the list',
+        });
+        return;
+      }
+
+      dispatch({
+        type: 'ADD_OTHER_DEBRIS',
+        payload: {
+          debris: {
+            item: otherDebris,
+            count: Number(count),
+          },
         },
-      },
-    });
+      });
+      setOtherDebris('');
+      setOtherOpen(false);
+    } else {
+      dispatch({
+        type: 'ADD_DEBRIS',
+        payload: {
+          debris: {
+            item: debris,
+            count: Number(count),
+          },
+        },
+      });
+    }
     setSuccess(true);
     setDebris('');
     setCount('');
   }
 
-  function handleItemSelect(value: React.ReactText) {
+  function handleItemSelect(value: string) {
     if (value == 'Other') {
       setOtherOpen(true);
     } else if (otherOpen) {

@@ -21,7 +21,7 @@ const ResultsPage: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
   const {
     finished,
-    debris,
+    debrisCollected,
     stats: {
       date,
       startTime,
@@ -49,7 +49,7 @@ const ResultsPage: React.FC = () => {
         <Headline style={styles.headline}>
           {finished && 'Final'} Results
         </Headline>
-        {debris ? (
+        {debrisCollected ? (
           <>
             <DataTable style={styles.dataTable}>
               <DataTable.Header style={{ paddingVertical: 0 }}>
@@ -118,14 +118,14 @@ const ResultsPage: React.FC = () => {
 
   /****************** Util Functions **************************/
   function getDebrisRows() {
-    if (!debris) return null;
-    return Object.keys(debris).map((item, i) => (
+    if (!debrisCollected) return null;
+    return Object.keys(debrisCollected).map((item, i) => (
       <DataTable.Row key={`${item}-${i}`}>
         <DataTable.Cell>
           <Text style={styles.row}>{item}</Text>
         </DataTable.Cell>
         <DataTable.Cell numeric>
-          <Text style={styles.row}>{debris[item]}</Text>
+          <Text style={styles.row}>{debrisCollected[item]}</Text>
         </DataTable.Cell>
       </DataTable.Row>
     ));
