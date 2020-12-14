@@ -207,6 +207,9 @@ const DebrisForm: React.FC = () => {
   function handleItemSelect(value: React.ReactText) {
     if (value == 'Other') {
       setOtherOpen(true);
+    } else if (otherOpen) {
+      setOtherOpen(false);
+      setOtherDebris('');
     }
     // turn off collected message when user starts new item collection
     if (success) setSuccess(false);
