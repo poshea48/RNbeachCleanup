@@ -35,5 +35,6 @@ module.exports = {
     'react-native/no-single-element-style-arrays': 2,
     'react/display-name': 'off',
     'react/prop-types': 'off',
+    eqeqeq: 0,
   },
 };

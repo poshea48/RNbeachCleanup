@@ -307,6 +307,7 @@ const styles = StyleSheet.create({
   fieldContainer: {},
   field: {
     marginBottom: 10,
+    backgroundColor: colors.white,
   },
 
   button: {

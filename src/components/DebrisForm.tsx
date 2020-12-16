@@ -1,31 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, FlatList } from 'react-native';
 import { TextInput } from 'react-native-paper';
-import { Picker } from '@react-native-community/picker';
 import { useAppDispatch, useAppState } from '../context/appContext';
 import colors from '../../colors';
-
-const Debris = [
-  'Select an Item',
-  'Batteries',
-  'Beverage containers-Metal',
-  'Beverage containers-Glass',
-  'Bottle caps',
-  'Cigarette butts',
-  'Clothes/Fabrics',
-  'Fishing gear - Line/nets/rope',
-  'Fishing gear - Floats/buoys',
-  'Flip-flops',
-  'Food wrappers',
-  'Items/pieces - Glass',
-  'Items/pieces - Metal',
-  'Items/pieces - Plastic',
-  'Paper/cardboard',
-  'Plastic bags',
-  'Six-pack rings',
-  'Styrofoam',
-  'Other',
-];
 
 const initErrorState = {
   isError: false,
@@ -36,42 +13,68 @@ const checkIfNotANumber = (num: string) => {
   return num.match(/[A-Za-z]+/);
 };
 
+const FlatListItemSeparator = () => {
+  return (
+    <View
+      style={{
+        height: 1,
+        width: '100%',
+        backgroundColor: colors.gray,
+      }}
+    />
+  );
+};
+
 // type DebrisNavProp = BottomTabNavigationProp<TabParamList, 'Debris'>;
 
 const DebrisForm: React.FC = () => {
   const [debris, setDebris] = useState('');
+  const [otherDebris, setOtherDebris] = useState('');
+  const [otherOpen, setOtherOpen] = useState(false);
   const [error, setError] = useState(initErrorState);
   const [success, setSuccess] = useState(false);
   const [count, setCount] = useState('');
   const dispatch = useAppDispatch();
   const context = useAppState();
-  const pickerItemsDisplay = Debris.map((d) => (
-    <Picker.Item key={d} label={d} value={d} />
-  ));
 
   useEffect(() => {
-    if (success && (!context.started || context.finished)) {
+    if (success && (!context.started || context.finished || error.isError)) {
       setSuccess(false);
     }
-    return () => setSuccess(false);
-  }, [success, context.started, context.finished]);
+  }, [success, context.started, context.finished, error.isError]);
+
   return (
     <View style={styles.container}>
       <Text style={styles.text}>What did you collect?</Text>
-      <Picker
-        style={styles.picker}
-        itemStyle={{
-          paddingVertical: 80,
-          color: colors.black,
-          fontSize: 30,
-          fontWeight: '800',
-          lineHeight: 100,
-          textTransform: 'uppercase',
-        }}
-        selectedValue={debris}
-        onValueChange={handlePickerItemChange}>
-        {pickerItemsDisplay}
-      </Picker>
+      <FlatList
+        style={styles.debrisList}
+        data={context.debrisList}
+        keyExtractor={(item) => item}
+        renderItem={({ item }) => itemView(item)}
+        ItemSeparatorComponent={FlatListItemSeparator}
+      />
+      {otherOpen && (
+        <View style={styles.otherItemView}>
+          <TextInput
+            mode="outlined"
+            error={error.isError}
+            underlineColor={colors.main}
+            theme={{
+              colors: { primary: colors.black },
+            }}
+            keyboardType="default"
+            onChangeText={(text) => {
+              setOtherDebris(text);
+            }}
+            value={otherDebris}
+            label="Add an Item"
+            style={{
+              width: '100%',
+              margin: 0,
+            }}
+          />
+        </View>
+      )}
       {success && <Text style={styles.successMessage}>✓ Item Collected</Text>}
       <View style={styles.keypad}>
         <TextInput
@@ -82,6 +85,7 @@ const DebrisForm: React.FC = () => {
             colors: { primary: colors.black },
           }}
           keyboardType="number-pad"
+          returnKeyType="done"
           style={styles.keypadLook}
           value={count}
           onChangeText={handleCountInput}
@@ -126,7 +130,31 @@ const DebrisForm: React.FC = () => {
     </View>
   );
 
-  /************************ Util functions ********************************/
+  /**************** Util functions ******************/
+
+  function itemView(item: string) {
+    return (
+      <View
+        style={[
+          styles.debrisItemView,
+          {
+            backgroundColor: item == debris ? colors.success : colors.white,
+          },
+        ]}>
+        <Pressable onPress={() => handleItemSelect(item)}>
+          <Text
+            style={[
+              styles.debrisItemText,
+              {
+                color: item == debris ? colors.white : colors.black,
+              },
+            ]}>
+            {item}
+          </Text>
+        </Pressable>
+      </View>
+    );
+  }
 
   function handleCountInput(num: string) {
     // turn off collected message when user starts new item collection
@@ -161,31 +189,75 @@ const DebrisForm: React.FC = () => {
     }
 
     // debris will always be a string
-    // eslint-disable-next-line eqeqeq
-    if (!debris || debris == 'Select an Item') {
+    // if debris is empty and not other
+    if (!debris && debris != 'Other') {
       setError({
         isError: true,
         message: '*Please select an item',
       });
       return;
     }
-    dispatch({
-      type: 'ADD_DEBRIS',
-      payload: {
-        debris: {
-          item: debris,
-          count: Number(count),
+
+    // Handle if other was touched
+    if (debris == 'Other') {
+      // no input
+      if (!otherDebris) {
+        setError({
+          isError: true,
+          message: '*Please type in a new item',
+        });
+        return;
+      }
+      // if input is already in debris list
+      if (
+        context.debrisList.find(
+          (item) => item.toLowerCase() == otherDebris.toLowerCase(),
+        )
+      ) {
+        setError({
+          isError: true,
+          message: '*This item is already on the list',
+        });
+        return;
+      }
+
+      dispatch({
+        type: 'ADD_OTHER_DEBRIS',
+        payload: {
+          debris: {
+            item: otherDebris,
+            count: Number(count),
+          },
         },
-      },
-    });
+      });
+      setOtherDebris('');
+      setOtherOpen(false);
+    } else {
+      dispatch({
+        type: 'ADD_DEBRIS',
+        payload: {
+          debris: {
+            item: debris,
+            count: Number(count),
+          },
+        },
+      });
+    }
     setSuccess(true);
     setDebris('');
     setCount('');
   }
 
-  function handlePickerItemChange(value: React.ReactText) {
+  function handleItemSelect(value: string) {
+    if (value == 'Other') {
+      setOtherOpen(true);
+    } else if (otherOpen) {
+      setOtherOpen(false);
+      setOtherDebris('');
+    }
     // turn off collected message when user starts new item collection
     if (success) setSuccess(false);
+    if (error) setError(initErrorState);
     value = String(value);
     setDebris(value);
   }
@@ -202,14 +274,32 @@ const styles = StyleSheet.create({
     fontSize: 30,
     textAlign: 'center',
     fontWeight: '800',
+    paddingBottom: 20,
   },
-  picker: {
-    height: '40%',
-    color: colors.white,
-    marginTop: 20,
+  debrisList: {
+    backgroundColor: colors.main,
+  },
+  debrisItemView: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+  },
+  otherItemView: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  debrisItemText: {
+    color: colors.black,
+    fontSize: 20,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+    textAlign: 'center',
   },
   successMessage: {
     color: colors.success,
+    marginTop: 20,
     alignSelf: 'center',
     fontSize: 20,
     fontWeight: '800',

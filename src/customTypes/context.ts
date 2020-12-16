@@ -1,4 +1,4 @@
-export interface DebrisState {
+export interface DebrisCollectedType {
   [key: string]: number;
 }
 
@@ -27,7 +27,8 @@ export interface TrackerType {
 export interface AppState {
   started: boolean;
   finished: boolean;
-  debris: null | DebrisState;
+  debrisCollected: null | DebrisCollectedType;
+  debrisList: string[];
   location: LocationState;
   stats: StatsState;
   tracker: TrackerType;

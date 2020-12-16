@@ -2,17 +2,39 @@ import React, { createContext, useContext, useReducer } from 'react';
 import {
   ActionType,
   AppState,
-  DebrisState,
+  DebrisCollectedType,
   DispatchType,
 } from '../customTypes/context';
 
 const AppStateContext = createContext<AppState | null>(null);
 const AppDispatchContext = createContext<DispatchType | null>(null);
 
+const DebrisList = [
+  'Batteries',
+  'Beverage containers-Metal',
+  'Beverage containers-Glass',
+  'Bottle caps',
+  'Cigarette butts',
+  'Clothes/Fabrics',
+  'Fishing gear - Line/nets/rope',
+  'Fishing gear - Floats/buoys',
+  'Flip-flops',
+  'Food wrappers',
+  'Items/pieces - Glass',
+  'Items/pieces - Metal',
+  'Items/pieces - Plastic',
+  'Paper/cardboard',
+  'Plastic bags',
+  'Six-pack rings',
+  'Styrofoam',
+  'Other',
+];
+
 const initialState: AppState = {
   started: false,
   finished: false,
-  debris: null,
+  debrisCollected: null,
+  debrisList: DebrisList,
   location: {
     beachName: '',
     city: '',
@@ -42,14 +64,53 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
       if (payload?.debris) {
         const { item } = payload.debris;
         const count = Number(payload.debris.count);
-        const debris: DebrisState = { ...state.debris };
-        debris[item] ? (debris[item] += count) : (debris[item] = count);
+        const debrisCollected: DebrisCollectedType = {
+          ...state.debrisCollected,
+        };
+        debrisCollected[item]
+          ? (debrisCollected[item] += count)
+          : (debrisCollected[item] = count);
         const oldTotal = state.stats.totalCollected
           ? state.stats.totalCollected
           : 0;
         return {
           ...state,
-          debris,
+          debrisCollected,
+          stats: {
+            ...state.stats,
+            totalCollected: oldTotal + count,
+          },
+        };
+      } else {
+        return { ...state };
+      }
+    case 'ADD_OTHER_DEBRIS':
+      if (payload?.debris) {
+        let { item } = payload.debris;
+        item = item[0].toUpperCase() + item.slice(1);
+        const count = Number(payload.debris.count);
+        const debrisCollected: DebrisCollectedType = {
+          ...state.debrisCollected,
+        };
+        const oldTotal = state.stats.totalCollected
+          ? state.stats.totalCollected
+          : 0;
+
+        // make a copy of debrisList but leave "Other" out in order to keep at the end of list after sorting (will push back in after sorting)
+        const debrisList = [...state.debrisList.slice(0, -1)];
+
+        // Add new item to Debris list and sort alphabetically
+        debrisList.push(item);
+        debrisList.sort();
+        debrisList.push('Other');
+
+        // Add item to collected list
+        debrisCollected[item] = count;
+
+        return {
+          ...state,
+          debrisCollected,
+          debrisList,
           stats: {
             ...state.stats,
             totalCollected: oldTotal + count,
