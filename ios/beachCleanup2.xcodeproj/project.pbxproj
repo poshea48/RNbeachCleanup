@@ -703,6 +703,7 @@
 			baseConfigurationReference = 635E811EBBF88F58592F490E /* Pods-beachCleanup2-beachCleanup2Tests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				DEVELOPMENT_TEAM = 2D6LZ4TKCT;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -727,6 +728,7 @@
 			baseConfigurationReference = ACC8DDC80A79746E132C414C /* Pods-beachCleanup2-beachCleanup2Tests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				COPY_PHASE_STRIP = NO;
 				DEVELOPMENT_TEAM = 2D6LZ4TKCT;
 				INFOPLIST_FILE = beachCleanup2Tests/Info.plist;

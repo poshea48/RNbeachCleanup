@@ -60,7 +60,7 @@ const ResultsPage: React.FC = () => {
                   <Text style={styles.tableHeader}>Total</Text>
                 </DataTable.Title>
               </DataTable.Header>
-              {displayRows}
+              <ScrollView>{displayRows}</ScrollView>
               <DataTable.Header>
                 <DataTable.Title>
                   <Text style={styles.tableHeader}>Total Collected:</Text>
@@ -143,7 +143,7 @@ const ResultsPage: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 50,
+    paddingTop: 30,
     paddingHorizontal: 30,
     justifyContent: 'flex-start',
     height: '100%',
@@ -157,6 +157,7 @@ const styles = StyleSheet.create({
   },
   dataTable: {
     width: '100%',
+    maxHeight: 350,
     marginTop: 20,
     backgroundColor: colors.orange,
     borderRadius: 10,

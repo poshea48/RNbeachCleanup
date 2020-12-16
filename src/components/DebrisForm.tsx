@@ -56,6 +56,12 @@ const DebrisForm: React.FC = () => {
       {otherOpen && (
         <View style={styles.otherItemView}>
           <TextInput
+            mode="outlined"
+            error={error.isError}
+            underlineColor={colors.main}
+            theme={{
+              colors: { primary: colors.black },
+            }}
             keyboardType="default"
             onChangeText={(text) => {
               setOtherDebris(text);
@@ -79,6 +85,7 @@ const DebrisForm: React.FC = () => {
             colors: { primary: colors.black },
           }}
           keyboardType="number-pad"
+          returnKeyType="done"
           style={styles.keypadLook}
           value={count}
           onChangeText={handleCountInput}
@@ -267,6 +274,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     textAlign: 'center',
     fontWeight: '800',
+    paddingBottom: 20,
   },
   debrisList: {
     backgroundColor: colors.main,
