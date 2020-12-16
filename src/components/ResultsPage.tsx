@@ -121,7 +121,7 @@ const ResultsPage: React.FC = () => {
     if (!debrisCollected) return null;
     return Object.keys(debrisCollected).map((item, i) => (
       <DataTable.Row key={`${item}-${i}`}>
-        <DataTable.Cell>
+        <DataTable.Cell style={{ flex: 3 }}>
           <Text style={styles.row}>{item}</Text>
         </DataTable.Cell>
         <DataTable.Cell numeric>
