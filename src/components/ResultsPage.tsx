@@ -87,7 +87,7 @@ const ResultsPage: React.FC = () => {
 
               <View style={styles.statField}>
                 <Text>Cleanup End Time:</Text>
-                <Text style={styles.statData}>{endTime}</Text>
+                <Text style={styles.statData}>{getTimeString(endTime)}</Text>
               </View>
               <Divider style={styles.divider} />
 
