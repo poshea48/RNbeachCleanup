@@ -86,10 +86,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 10,
+    marginTop: 10,
   },
   completeButton: {
-    width: '80%',
+    width: 200,
     height: '100%',
     flexDirection: 'row',
     justifyContent: 'center',
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   resumeButton: {
-    width: '80%',
+    width: 200,
     height: '100%',
     flexDirection: 'row',
     justifyContent: 'center',

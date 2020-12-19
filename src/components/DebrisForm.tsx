@@ -133,6 +133,7 @@ const DebrisForm: React.FC = () => {
           <Text style={styles.buttonText}>Collect!</Text>
         </Pressable>
       )}
+      <FinishedButton />
 
       <View style={styles.locationInfoContainer}>
         {context.location.city ? (
@@ -148,7 +149,6 @@ const DebrisForm: React.FC = () => {
           <Text style={styles.locationInfoText}>No location set</Text>
         )}
       </View>
-      <FinishedButton />
     </View>
   );
 
@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginVertical: 10,
     // paddingVertical: 10,
-    borderRadius: 5,
+    borderRadius: 10,
     width: 200,
     height: 50,
     backgroundColor: colors.main,
@@ -367,7 +367,6 @@ const styles = StyleSheet.create({
   },
   locationInfoContainer: {
     padding: 20,
-    marginTop: 10,
     color: colors.warning,
     justifyContent: 'center',
     alignItems: 'center',

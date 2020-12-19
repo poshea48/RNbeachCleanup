@@ -103,6 +103,10 @@ const ResultsPage: React.FC = () => {
               </View>
             </List.Accordion>
           </>
+        ) : finished ? (
+          <Headline>
+            <Text style={styles.noResults}>You did not collect anything</Text>
+          </Headline>
         ) : (
           <Headline>
             <Text style={styles.noResults}>No results yet</Text>
