@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Pressable, FlatList } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import { useAppDispatch, useAppState } from '../context/appContext';
 import colors from '../../colors';
+import FinishedButton from './FinishedButton';
 
 const initErrorState = {
   isError: false,
@@ -37,6 +38,22 @@ const DebrisForm: React.FC = () => {
   const dispatch = useAppDispatch();
   const context = useAppState();
 
+  useEffect(() => {
+    if (context.finished) {
+      if (error.isError) setError(initErrorState);
+      if (success) setSuccess(false);
+      if (otherOpen) setOtherOpen(false);
+      if (debris) setDebris('');
+      if (otherDebris) setOtherDebris('');
+    }
+  }, [
+    context.finished,
+    error.isError,
+    success,
+    otherOpen,
+    debris,
+    otherDebris,
+  ]);
   useEffect(() => {
     if (success && (!context.started || context.finished || error.isError)) {
       setSuccess(false);
@@ -76,42 +93,47 @@ const DebrisForm: React.FC = () => {
         </View>
       )}
       {success && <Text style={styles.successMessage}>✓ Item Collected</Text>}
-      <View style={styles.keypad}>
-        <TextInput
-          mode="outlined"
-          error={error.isError}
-          underlineColor={colors.main}
-          theme={{
-            colors: { primary: colors.black },
-          }}
-          keyboardType="number-pad"
-          returnKeyType="done"
-          style={styles.keypadLook}
-          value={count}
-          onChangeText={handleCountInput}
-          label="Count"
-        />
-        {error.isError && <Text style={styles.error}>{error.message}</Text>}
-      </View>
-      <Pressable
-        onPress={() => submitDebris()}
-        style={({ pressed }) => [
-          {
-            transform: [
-              { translateX: pressed ? 5 : 0 },
-              { translateY: pressed ? 5 : 0 },
-            ],
-            shadowColor: pressed ? 'transparent' : colors.black,
-            shadowOffset: pressed
-              ? { width: 0, height: 0 }
-              : { width: 5, height: 5 },
-            shadowOpacity: 1.0,
-          },
-          styles.button,
-          styles.startButton,
-        ]}>
-        <Text style={styles.buttonText}>Collect!</Text>
-      </Pressable>
+      {!context.finished && (
+        <View style={styles.keypad}>
+          <TextInput
+            mode="outlined"
+            error={error.isError}
+            underlineColor={colors.main}
+            theme={{
+              colors: { primary: colors.black },
+            }}
+            keyboardType="number-pad"
+            returnKeyType="done"
+            style={styles.keypadLook}
+            value={count}
+            onChangeText={handleCountInput}
+            label="Count"
+          />
+          {error.isError && <Text style={styles.error}>{error.message}</Text>}
+        </View>
+      )}
+      {!context.finished && (
+        <Pressable
+          onPress={() => submitDebris()}
+          style={({ pressed }) => [
+            {
+              transform: [
+                { translateX: pressed ? 0 : 0 },
+                { translateY: pressed ? 5 : 0 },
+              ],
+              shadowColor: pressed ? 'transparent' : colors.black,
+              shadowOffset: pressed
+                ? { width: 0, height: 0 }
+                : { width: 0, height: 5 },
+              shadowOpacity: 1.0,
+            },
+            styles.button,
+            styles.startButton,
+          ]}>
+          <Text style={styles.buttonText}>Collect!</Text>
+        </Pressable>
+      )}
+      <FinishedButton />
 
       <View style={styles.locationInfoContainer}>
         {context.location.city ? (
@@ -319,7 +341,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginVertical: 10,
     // paddingVertical: 10,
-    borderRadius: 5,
+    borderRadius: 10,
     width: 200,
     height: 50,
     backgroundColor: colors.main,
@@ -345,7 +367,6 @@ const styles = StyleSheet.create({
   },
   locationInfoContainer: {
     padding: 20,
-    marginTop: 10,
     color: colors.warning,
     justifyContent: 'center',
     alignItems: 'center',

@@ -7,4 +7,6 @@ export default {
   pause: '#f99d34',
   orange: '#f19943',
   white: '#fefcfb',
+  finished: '#F1415F',
+  buttonText: '#150F0F',
 };

@@ -14,7 +14,6 @@ export interface StatsState {
   endTime?: number;
   totalCollected?: number;
   totalDistance?: number;
-  totalTime?: number;
 }
 
 export interface TrackerType {

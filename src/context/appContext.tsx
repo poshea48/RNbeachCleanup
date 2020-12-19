@@ -46,7 +46,6 @@ const initialState: AppState = {
     endTime: 0,
     totalCollected: 0,
     totalDistance: 0,
-    totalTime: 0,
   },
   tracker: {
     inUse: false,
@@ -142,6 +141,24 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
         stats: {
           ...state.stats,
           ...payload?.stats,
+        },
+      };
+    case 'END_CLEANUP':
+      return {
+        ...state,
+        finished: true,
+        stats: {
+          ...state.stats,
+          ...payload?.stats,
+        },
+      };
+    case 'RESUME_CLEANUP':
+      return {
+        ...state,
+        finished: false,
+        stats: {
+          ...state.stats,
+          endTime: 0,
         },
       };
     case 'PAUSE':

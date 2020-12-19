@@ -10,6 +10,7 @@ import {
 import { DataTable, Headline, List, Divider } from 'react-native-paper';
 import { useAppState } from '../context/appContext';
 import colors from '../../colors';
+import { getTimeString, getTotalTime } from '../utils/date-time';
 
 function wait(timeout: number) {
   return new Promise((resolve) => {
@@ -22,15 +23,10 @@ const ResultsPage: React.FC = () => {
   const {
     finished,
     debrisCollected,
-    stats: {
-      date,
-      startTime,
-      endTime,
-      totalCollected,
-      totalDistance,
-      totalTime,
-    },
+    stats: { date, startTime, endTime, totalCollected, totalDistance },
   } = useAppState();
+  const totalTime =
+    finished && startTime && endTime ? getTotalTime(startTime, endTime) : 'N/A';
   const displayRows = getDebrisRows();
 
   const onRefresh = useCallback(() => {
@@ -91,7 +87,7 @@ const ResultsPage: React.FC = () => {
 
               <View style={styles.statField}>
                 <Text>Cleanup End Time:</Text>
-                <Text style={styles.statData}>{endTime}</Text>
+                <Text style={styles.statData}>{getTimeString(endTime)}</Text>
               </View>
               <Divider style={styles.divider} />
 
@@ -107,6 +103,10 @@ const ResultsPage: React.FC = () => {
               </View>
             </List.Accordion>
           </>
+        ) : finished ? (
+          <Headline>
+            <Text style={styles.noResults}>You did not collect anything</Text>
+          </Headline>
         ) : (
           <Headline>
             <Text style={styles.noResults}>No results yet</Text>
@@ -117,6 +117,7 @@ const ResultsPage: React.FC = () => {
   );
 
   /****************** Util Functions **************************/
+
   function getDebrisRows() {
     if (!debrisCollected) return null;
     return Object.keys(debrisCollected).map((item, i) => (
@@ -129,15 +130,6 @@ const ResultsPage: React.FC = () => {
         </DataTable.Cell>
       </DataTable.Row>
     ));
-  }
-  function getTimeString(time: number | undefined) {
-    if (!time) return '';
-    const timeString = new Date(time).toLocaleTimeString();
-    const [clock, meridiem] = timeString.split(' ');
-    return `${clock
-      .split(':')
-      .slice(0, 2)
-      .join(':')} ${meridiem.toLowerCase()}`;
   }
 };
 
