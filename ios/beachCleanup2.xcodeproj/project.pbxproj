@@ -20,6 +20,8 @@
 		B59E55676FE75ED7DABDE81A /* libPods-beachCleanup2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 978E0F3423BBC2ACAF93CDAD /* libPods-beachCleanup2.a */; };
 		C6E90CFC7CDDE8A32C09BC0B /* libPods-beachCleanup2-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5C8AFB620231EB79D584826 /* libPods-beachCleanup2-tvOSTests.a */; };
 		CD7DB1D475B763E013BB4BE3 /* libPods-beachCleanup2-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C16F85AA392324300FFA72E /* libPods-beachCleanup2-tvOS.a */; };
+		FF8840B925A3F66A00F230D1 /* SwiftSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8840B825A3F66A00F230D1 /* SwiftSupport.swift */; };
+		FF8840BA25A3F66A00F230D1 /* SwiftSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8840B825A3F66A00F230D1 /* SwiftSupport.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,6 +69,9 @@
 		E313C152922A76DE1C334DAB /* Pods-beachCleanup2-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-beachCleanup2-tvOS.debug.xcconfig"; path = "Target Support Files/Pods-beachCleanup2-tvOS/Pods-beachCleanup2-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
+		FF8840B625A3F66A00F230D1 /* beachCleanup2-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "beachCleanup2-Bridging-Header.h"; sourceTree = "<group>"; };
+		FF8840B725A3F66A00F230D1 /* beachCleanup2-tvOS-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "beachCleanup2-tvOS-Bridging-Header.h"; sourceTree = "<group>"; };
+		FF8840B825A3F66A00F230D1 /* SwiftSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftSupport.swift; sourceTree = "<group>"; };
 		FFB6437E2526C28500A544CD /* Ionicons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Ionicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Ionicons.ttf"; sourceTree = "<group>"; };
 		FFFC2314254B8C7600945B4E /* MaterialCommunityIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MaterialCommunityIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"; sourceTree = "<group>"; };
 		FFFC2315254B8C7600945B4E /* MaterialIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MaterialIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialIcons.ttf"; sourceTree = "<group>"; };
@@ -143,6 +148,9 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB11A68108700A75B9A /* LaunchScreen.xib */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				FF8840B825A3F66A00F230D1 /* SwiftSupport.swift */,
+				FF8840B625A3F66A00F230D1 /* beachCleanup2-Bridging-Header.h */,
+				FF8840B725A3F66A00F230D1 /* beachCleanup2-tvOS-Bridging-Header.h */,
 			);
 			name = beachCleanup2;
 			sourceTree = "<group>";
@@ -309,11 +317,12 @@
 					};
 					13B07F861A680F5B00A75B9A = {
 						DevelopmentTeam = 2D6LZ4TKCT;
-						LastSwiftMigration = 1120;
+						LastSwiftMigration = 1230;
 					};
 					2D02E47A1E0B4A5D006451C7 = {
 						CreatedOnToolsVersion = 8.2.1;
 						DevelopmentTeam = 2D6LZ4TKCT;
+						LastSwiftMigration = 1230;
 						ProvisioningStyle = Automatic;
 					};
 					2D02E48F1E0B4A5D006451C7 = {
@@ -648,6 +657,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FF8840B925A3F66A00F230D1 /* SwiftSupport.swift in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 			);
@@ -657,6 +667,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FF8840BA25A3F66A00F230D1 /* SwiftSupport.swift in Sources */,
 				2D02E4BF1E0B4AB3006451C7 /* main.m in Sources */,
 				2D02E4BC1E0B4A80006451C7 /* AppDelegate.m in Sources */,
 			);
@@ -702,6 +713,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 635E811EBBF88F58592F490E /* Pods-beachCleanup2-beachCleanup2Tests.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				DEVELOPMENT_TEAM = 2D6LZ4TKCT;
@@ -727,6 +739,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = ACC8DDC80A79746E132C414C /* Pods-beachCleanup2-beachCleanup2Tests.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				COPY_PHASE_STRIP = NO;
@@ -767,6 +780,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = beachCleanup2;
+				SWIFT_OBJC_BRIDGING_HEADER = "beachCleanup2-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -790,6 +804,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = beachCleanup2;
+				SWIFT_OBJC_BRIDGING_HEADER = "beachCleanup2-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -802,6 +817,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -819,6 +835,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.beachCleanup2-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
+				SWIFT_OBJC_BRIDGING_HEADER = "beachCleanup2-tvOS-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.2;
 			};
@@ -831,6 +850,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -848,6 +868,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.beachCleanup2-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
+				SWIFT_OBJC_BRIDGING_HEADER = "beachCleanup2-tvOS-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.2;
 			};
@@ -857,6 +879,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 2AD31526439737D8A0C9FFCC /* Pods-beachCleanup2-tvOSTests.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -884,6 +907,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 44DB63BD6A4402698654A081 /* Pods-beachCleanup2-tvOSTests.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;

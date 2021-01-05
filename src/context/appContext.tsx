@@ -49,6 +49,8 @@ const initialState: AppState = {
   },
   tracker: {
     inUse: false,
+    startGPS: null,
+    positions: null,
   },
 };
 
@@ -58,6 +60,10 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
     case 'RESET':
       return {
         ...initialState,
+        tracker: {
+          ...initialState.tracker,
+          inUse: state.tracker.inUse,
+        },
       };
     case 'ADD_DEBRIS':
       if (payload?.debris) {
@@ -134,6 +140,14 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
           ...payload?.tracker,
         },
       };
+    case 'TOGGLE_GPS':
+      return {
+        ...state,
+        tracker: {
+          ...state.tracker,
+          inUse: !state.tracker.inUse,
+        },
+      };
     case 'START_CLEANUP':
       return {
         ...state,
@@ -141,6 +155,10 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
         stats: {
           ...state.stats,
           ...payload?.stats,
+        },
+        tracker: {
+          ...state.tracker,
+          ...payload?.tracker,
         },
       };
     case 'END_CLEANUP':

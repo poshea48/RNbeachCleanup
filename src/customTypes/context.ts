@@ -16,10 +16,23 @@ export interface StatsState {
   totalDistance?: number;
 }
 
+export interface GeolocationType {
+  coords: {
+    latitude: number;
+    longitude: number;
+    altitude: number | null;
+    accuracy: number;
+    altitudeAccuracy: number | null;
+    heading: number | null;
+    speed: number | null;
+  };
+  timestamp: number;
+}
+
 export interface TrackerType {
   inUse: boolean;
-  // startGPS: {},
-  // positions: [],
+  startGPS: GeolocationType | null;
+  positions: [GeolocationType] | null;
   // watchId: null,
 }
 

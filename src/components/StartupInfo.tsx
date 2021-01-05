@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { View, StyleSheet, Pressable, Modal } from 'react-native';
+import { View, StyleSheet, Pressable, Modal, Platform } from 'react-native';
 import { Switch, Text } from 'react-native-paper';
+import Geolocation from 'react-native-geolocation-service';
 import { useAppDispatch, useAppState } from '../context/appContext';
 import { TabParamList } from '../customTypes/navigation';
 import colors from '../../colors';
+import { GeolocationType } from '../customTypes/context';
 
 type StartNavProp = BottomTabNavigationProp<TabParamList, 'Debris'>;
 
@@ -12,9 +14,15 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
   navigation,
 }) => {
   const { started, tracker } = useAppState();
-  const [isGpsOn, toggleGPS] = useState(started);
   const [open, setOpen] = useState(false);
+  const [location, setLocation] = useState<GeolocationType | null>(null);
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (Platform.OS === 'ios') {
+      Geolocation.requestAuthorization('always');
+    }
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -35,14 +43,15 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
             Track your GPS and distanced traveled during cleanup?
           </Text>
           <View style={styles.gps}>
-            <Text style={{ color: isGpsOn ? colors.orange : colors.gray }}>
-              GPS({isGpsOn ? 'on' : 'off'})
+            <Text
+              style={{ color: tracker.inUse ? colors.orange : colors.gray }}>
+              GPS({tracker.inUse ? 'on' : 'off'})
             </Text>
             <Switch
               style={styles.switch}
               color={colors.main}
-              value={isGpsOn}
-              onValueChange={toggleGPS}
+              value={tracker.inUse}
+              onValueChange={toggleGps}
             />
           </View>
         </View>
@@ -61,7 +70,7 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
       <View />
       {!started && (
         <Pressable
-          onPress={() => handleStartPress()}
+          onPress={handleStartPress}
           style={({ pressed }) => [
             {
               transform: [
@@ -128,10 +137,44 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
 
   /*********** Util Functions *************/
 
-  function handleStartPress() {
-    if (isGpsOn) {
+  function toggleGps() {
+    dispatch({
+      type: 'TOGGLE_GPS',
+      payload: {
+        tracker: {
+          ...tracker,
+          inUse: !tracker.inUse,
+        },
+      },
+    });
+  }
+
+  async function handleStartPress() {
+    let newTrackerInfo = { ...tracker };
+    console.log('1');
+    if (tracker.inUse) {
+      console.log('2');
+
       // get initial location data:
+      await Geolocation.getCurrentPosition(
+        (position) => {
+          console.log('3');
+
+          newTrackerInfo = {
+            ...newTrackerInfo,
+            startGPS: { ...position },
+          };
+          console.log('inside, newTrackerinfo, ', newTrackerInfo);
+        },
+        (error) => {
+          // See error code charts below.
+          console.log(error.code, error.message);
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+      );
+      console.log('4');
     }
+    console.log('5');
     const dateObject = new Date();
     const startTime = dateObject.getTime();
     const date = dateObject.toLocaleDateString();
@@ -145,6 +188,7 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
      results: {totalCollected,totalDistance,totalTime,}
      tracker: {inUse, startGPS,positions,watchId]
     }*/
+    console.log('tracker, ', newTrackerInfo);
     dispatch({
       type: 'START_CLEANUP',
       payload: {
@@ -153,10 +197,7 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
           date,
           startTime,
         },
-        tracker: {
-          ...tracker,
-          inUse: isGpsOn,
-        },
+        tracker: newTrackerInfo,
       },
     });
     navigation.navigate('Debris');
@@ -167,15 +208,8 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
   }
 
   function handleModalReset() {
-    toggleGPS(false);
     dispatch({
       type: 'RESET',
-      payload: {
-        tracker: {
-          ...tracker,
-          inUse: isGpsOn,
-        },
-      },
     });
     setOpen(false);
   }
