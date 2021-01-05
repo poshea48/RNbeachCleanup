@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
 import { Platform } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
+import { useAppState } from '../../context/appContext';
 
 interface LocationType {
   latitude: number;
@@ -9,7 +10,10 @@ interface LocationType {
 }
 
 const MapView: React.FC = () => {
-  const [location, setLocation] = useState<LocationType | undefined>(undefined);
+  const { tracker } = useAppState();
+  const [location, setLocation] = useState<LocationType | undefined>(
+    tracker.startGPS?.coords,
+  );
 
   useEffect(() => {
     if (Platform.OS === 'ios') {

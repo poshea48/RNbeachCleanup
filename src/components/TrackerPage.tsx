@@ -1,13 +1,48 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import MapView from 'react-native-maps';
-
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
+import { useAppState } from '../context/appContext';
 import colors from '../../colors';
 
+interface LocationType {
+  latitude: number;
+  longitude: number;
+}
+
 const TrackerPage: React.FC = () => {
+  const { tracker } = useAppState();
+  const [location, setLocation] = useState<LocationType>({
+    latitude: tracker?.startGPS?.coords.latitude || 0,
+    longitude: tracker?.startGPS?.coords.longitude || 0,
+  });
+
+  const { width, height } = Dimensions.get('window');
+
+  const ASPECT_RATIO = width / height;
+  const LATITUDE_DELTA = 0.0922;
+  const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
+
+  console.log(tracker.startGPS);
   return (
     <View style={styles.container}>
-      <MapView style={{ flex: 1 }} />
+      <MapView
+        style={{ flex: 1 }}
+        initialRegion={{
+          latitude: location?.latitude,
+          longitude: location?.longitude,
+          latitudeDelta: LATITUDE_DELTA,
+          longitudeDelta: LONGITUDE_DELTA,
+        }}>
+        <Marker
+          key="initial"
+          title="starting point"
+          coordinate={{
+            latitude: location.latitude,
+            longitude: location.longitude,
+          }}
+          pinColor="blue"
+        />
+      </MapView>
     </View>
   );
 };

@@ -148,6 +148,14 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
           inUse: !state.tracker.inUse,
         },
       };
+    case 'ADD_START_GPS':
+      return {
+        ...state,
+        tracker: {
+          ...state.tracker,
+          ...payload?.tracker,
+        },
+      };
     case 'START_CLEANUP':
       return {
         ...state,

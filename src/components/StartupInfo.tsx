@@ -151,20 +151,20 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
 
   async function handleStartPress() {
     let newTrackerInfo = { ...tracker };
-    console.log('1');
     if (tracker.inUse) {
-      console.log('2');
-
       // get initial location data:
       await Geolocation.getCurrentPosition(
         (position) => {
-          console.log('3');
-
           newTrackerInfo = {
             ...newTrackerInfo,
             startGPS: { ...position },
           };
-          console.log('inside, newTrackerinfo, ', newTrackerInfo);
+          dispatch({
+            type: 'ADD_START_GPS',
+            payload: {
+              tracker: newTrackerInfo,
+            },
+          });
         },
         (error) => {
           // See error code charts below.
@@ -172,9 +172,7 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
         },
         { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
       );
-      console.log('4');
     }
-    console.log('5');
     const dateObject = new Date();
     const startTime = dateObject.getTime();
     const date = dateObject.toLocaleDateString();
@@ -197,7 +195,6 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
           date,
           startTime,
         },
-        tracker: newTrackerInfo,
       },
     });
     navigation.navigate('Debris');

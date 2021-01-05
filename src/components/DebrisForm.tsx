@@ -59,7 +59,6 @@ const DebrisForm: React.FC = () => {
       setSuccess(false);
     }
   }, [success, context.started, context.finished, error.isError]);
-  console.log('here is the context', context.tracker);
   return (
     <View style={styles.container}>
       <Text style={styles.text}>What did you collect?</Text>
