@@ -1,11 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import MapView from 'react-native-maps';
+
 import colors from '../../colors';
 
 const TrackerPage: React.FC = () => {
   return (
     <View style={styles.container}>
-      <Text>THis will be the Tracker page</Text>
+      <MapView style={{ flex: 1 }} />
     </View>
   );
 };
