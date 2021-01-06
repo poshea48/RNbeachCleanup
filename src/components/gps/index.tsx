@@ -1,16 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text } from 'react-native';
+import React, { useEffect } from 'react';
+import { View } from 'react-native';
 import { Platform } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
-
-interface LocationType {
-  latitude: number;
-  longitude: number;
-}
+import Map from './Map';
+import colors from '../../../colors';
+import Timer from './Timer';
 
 const GPSTracker: React.FC = () => {
-  const [location, setLocation] = useState<LocationType | undefined>(undefined);
-
   useEffect(() => {
     if (Platform.OS === 'ios') {
       Geolocation.requestAuthorization('always');
@@ -18,8 +14,13 @@ const GPSTracker: React.FC = () => {
   }, []);
 
   return (
-    <View>
-      <Text>GPS Tracker</Text>
+    <View style={{ flex: 1, backgroundColor: colors.main }}>
+      <View style={{ flex: 4 }}>
+        <Map />
+      </View>
+      <View style={{ flex: 1 }}>
+        <Timer />
+      </View>
     </View>
   );
 };

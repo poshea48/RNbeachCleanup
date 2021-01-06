@@ -44,6 +44,7 @@ const initialState: AppState = {
     date: '',
     startTime: 0,
     endTime: 0,
+    totalTime: 0,
     totalCollected: 0,
     totalDistance: 0,
   },

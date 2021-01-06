@@ -12,6 +12,7 @@ export interface StatsState {
   date?: string;
   startTime?: number;
   endTime?: number;
+  totalTime?: number;
   totalCollected?: number;
   totalDistance?: number;
 }

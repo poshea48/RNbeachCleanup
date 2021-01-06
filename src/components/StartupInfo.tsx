@@ -6,7 +6,7 @@ import Geolocation from 'react-native-geolocation-service';
 import { useAppDispatch, useAppState } from '../context/appContext';
 import { TabParamList } from '../customTypes/navigation';
 import colors from '../../colors';
-import { GeolocationType } from '../customTypes/context';
+import Button from './Button';
 
 type StartNavProp = BottomTabNavigationProp<TabParamList, 'Debris'>;
 
@@ -15,7 +15,6 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
 }) => {
   const { started, tracker } = useAppState();
   const [open, setOpen] = useState(false);
-  const [location, setLocation] = useState<GeolocationType | null>(null);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -69,46 +68,24 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
       </View>
       <View />
       {!started && (
-        <Pressable
-          onPress={handleStartPress}
-          style={({ pressed }) => [
-            {
-              transform: [
-                { translateX: pressed ? 5 : 0 },
-                { translateY: pressed ? 5 : 0 },
-              ],
-              shadowColor: pressed ? 'transparent' : colors.black,
-              shadowOffset: pressed
-                ? { width: 0, height: 0 }
-                : { width: 5, height: 5 },
-              shadowOpacity: 1.0,
-            },
-            styles.button,
-            styles.startButton,
-          ]}>
-          <Text style={styles.buttonText}>START!</Text>
-        </Pressable>
+        <Button
+          pressCb={handleStartPress}
+          message="START!"
+          styles={{
+            container: { ...styles.button, ...styles.startButton },
+            text: styles.buttonText,
+          }}
+        />
       )}
       {started && (
-        <Pressable
-          onPress={() => handleResetPress()}
-          style={({ pressed }) => [
-            {
-              transform: [
-                { translateX: pressed ? 5 : 0 },
-                { translateY: pressed ? 5 : 0 },
-              ],
-              shadowColor: pressed ? 'transparent' : colors.black,
-              shadowOffset: pressed
-                ? { width: 0, height: 0 }
-                : { width: 5, height: 5 },
-              shadowOpacity: 1.0,
-            },
-            styles.button,
-            styles.resetButton,
-          ]}>
-          <Text style={[styles.buttonText, styles.resetButtonText]}>Reset</Text>
-        </Pressable>
+        <Button
+          pressCb={handleResetPress}
+          message="Reset"
+          styles={{
+            container: { ...styles.button, ...styles.resetButton },
+            text: { ...styles.buttonText, ...styles.resetButtonText },
+          }}
+        />
       )}
       <Modal animationType="slide" transparent={true} visible={open}>
         <View style={styles.modalContainer}>
@@ -186,7 +163,6 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
      results: {totalCollected,totalDistance,totalTime,}
      tracker: {inUse, startGPS,positions,watchId]
     }*/
-    console.log('tracker, ', newTrackerInfo);
     dispatch({
       type: 'START_CLEANUP',
       payload: {
