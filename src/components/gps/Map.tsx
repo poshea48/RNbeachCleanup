@@ -30,7 +30,10 @@ const Map: React.FC = () => {
         longitude: location?.longitude,
         latitudeDelta: LATITUDE_DELTA,
         longitudeDelta: LONGITUDE_DELTA,
-      }}>
+      }}
+      zoomEnabled={true}
+      scrollEnabled={true}
+      showsScale={true}>
       <Marker
         key="initial"
         title="starting point"
