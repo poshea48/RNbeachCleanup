@@ -42,6 +42,7 @@ const initialState: AppState = {
   },
   stats: {
     date: '',
+    started: false,
     startTime: 0,
     endTime: 0,
     totalTime: 0,
@@ -188,15 +189,16 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
           endTime: 0,
         },
       };
-    case 'PAUSE':
+    case 'PAUSE_TIMER':
       return {
         ...state,
+        stats: { ...state.stats, ...payload?.stats },
       };
-    case 'RESUME':
+    case 'RESUME_TIMER':
       return {
         ...state,
+        stats: { ...state.stats, ...payload?.stats },
       };
-
     case 'FINISHED':
       return {
         ...state,

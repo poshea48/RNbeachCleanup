@@ -13,7 +13,7 @@ type StartNavProp = BottomTabNavigationProp<TabParamList, 'Debris'>;
 const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
   navigation,
 }) => {
-  const { started, tracker } = useAppState();
+  const { started, stats, tracker } = useAppState();
   const [open, setOpen] = useState(false);
   const dispatch = useAppDispatch();
 
@@ -126,11 +126,11 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
     });
   }
 
-  async function handleStartPress() {
+  function handleStartPress() {
     let newTrackerInfo = { ...tracker };
     if (tracker.inUse) {
       // get initial location data:
-      await Geolocation.getCurrentPosition(
+      Geolocation.getCurrentPosition(
         (position) => {
           newTrackerInfo = {
             ...newTrackerInfo,
@@ -168,7 +168,9 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
       payload: {
         started: true,
         stats: {
+          ...stats,
           date,
+          started: true,
           startTime,
         },
       },
