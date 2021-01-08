@@ -42,13 +42,17 @@ const initialState: AppState = {
   },
   stats: {
     date: '',
-    startTime: 0,
+    initialStartTime: 0,
+    currentStartTime: 0,
     endTime: 0,
+    totalTime: 0,
     totalCollected: 0,
     totalDistance: 0,
   },
   tracker: {
     inUse: false,
+    startGPS: null,
+    positions: null,
   },
 };
 
@@ -58,6 +62,10 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
     case 'RESET':
       return {
         ...initialState,
+        tracker: {
+          ...initialState.tracker,
+          inUse: state.tracker.inUse,
+        },
       };
     case 'ADD_DEBRIS':
       if (payload?.debris) {
@@ -134,6 +142,22 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
           ...payload?.tracker,
         },
       };
+    case 'TOGGLE_GPS':
+      return {
+        ...state,
+        tracker: {
+          ...state.tracker,
+          inUse: !state.tracker.inUse,
+        },
+      };
+    case 'ADD_START_GPS':
+      return {
+        ...state,
+        tracker: {
+          ...state.tracker,
+          ...payload?.tracker,
+        },
+      };
     case 'START_CLEANUP':
       return {
         ...state,
@@ -141,6 +165,10 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
         stats: {
           ...state.stats,
           ...payload?.stats,
+        },
+        tracker: {
+          ...state.tracker,
+          ...payload?.tracker,
         },
       };
     case 'END_CLEANUP':
@@ -150,6 +178,12 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
         stats: {
           ...state.stats,
           ...payload?.stats,
+          currentStartTime: 0,
+          totalTime: payload?.stats
+            ? Math.floor(
+                (payload.stats.endTime - state.stats.currentStartTime) / 1000,
+              ) + state.stats.totalTime
+            : state.stats.totalTime,
         },
       };
     case 'RESUME_CLEANUP':
@@ -158,18 +192,20 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
         finished: false,
         stats: {
           ...state.stats,
+          ...payload?.stats,
           endTime: 0,
         },
       };
-    case 'PAUSE':
+    case 'PAUSE_TIMER':
       return {
         ...state,
+        stats: { ...state.stats, ...payload?.stats },
       };
-    case 'RESUME':
+    case 'RESUME_TIMER':
       return {
         ...state,
+        stats: { ...state.stats, ...payload?.stats },
       };
-
     case 'FINISHED':
       return {
         ...state,

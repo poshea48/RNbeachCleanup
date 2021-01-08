@@ -4,7 +4,7 @@ import {
   createBottomTabNavigator,
 } from '@react-navigation/bottom-tabs';
 import DebrisForm from '../components/DebrisForm';
-import TrackerPage from '../components/TrackerPage';
+import TrackerPage from '../components/gps';
 import ResultsPage from '../components/ResultsPage';
 import LocationForm from '../components/LocationForm';
 import StartupInfo from '../components/StartupInfo';

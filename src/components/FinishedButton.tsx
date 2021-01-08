@@ -1,36 +1,33 @@
 import React from 'react';
-import { View, Pressable, Text, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 import { useAppDispatch, useAppState } from '../context/appContext';
+import Button from './Button';
 import colors from '../../colors';
 
 const FinishedButton: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { finished } = useAppState();
+  const { finished, stats } = useAppState();
   return (
     <View style={styles.container}>
-      <Pressable
-        onPress={finished ? handleResumeAlert : handleCompleteAlert}
-        style={({ pressed }) => [
-          {
-            transform: [
-              { translateX: pressed ? 0 : 0 },
-              { translateY: pressed ? 5 : 0 },
-            ],
-            shadowColor: pressed ? 'transparent' : colors.black,
-            shadowOffset: pressed
-              ? { width: 0, height: 0 }
-              : { width: 0, height: 5 },
-            shadowOpacity: 1.0,
-          },
-          finished ? styles.resumeButton : styles.completeButton,
-        ]}>
-        <Text
-          style={
-            finished ? styles.resumeButtonText : styles.completeButtonText
-          }>
-          {finished ? 'Resume Cleanup' : 'Cleanup Complete'}
-        </Text>
-      </Pressable>
+      {finished ? (
+        <Button
+          pressCb={handleResumeAlert}
+          message="Resume Cleanup"
+          styles={{
+            container: styles.resumeButton,
+            text: styles.resumeButtonText,
+          }}
+        />
+      ) : (
+        <Button
+          pressCb={handleCompleteAlert}
+          message="Cleanup Complete"
+          styles={{
+            container: styles.completeButton,
+            text: styles.completeButtonText,
+          }}
+        />
+      )}
     </View>
   );
 
@@ -65,6 +62,12 @@ const FinishedButton: React.FC = () => {
   function handleResumePress() {
     dispatch({
       type: 'RESUME_CLEANUP',
+      payload: {
+        stats: {
+          ...stats,
+          currentStartTime: Date.now(),
+        },
+      },
     });
   }
   function handleFinishedPress() {
@@ -72,6 +75,7 @@ const FinishedButton: React.FC = () => {
       type: 'END_CLEANUP',
       payload: {
         stats: {
+          ...stats,
           endTime: Date.now(),
         },
       },

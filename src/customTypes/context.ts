@@ -9,17 +9,32 @@ export interface LocationState {
 }
 
 export interface StatsState {
-  date?: string;
-  startTime?: number;
-  endTime?: number;
-  totalCollected?: number;
-  totalDistance?: number;
+  date: string;
+  initialStartTime: number;
+  currentStartTime: number;
+  endTime: number;
+  totalTime: number;
+  totalCollected: number;
+  totalDistance: number;
+}
+
+export interface GeolocationType {
+  coords: {
+    latitude: number;
+    longitude: number;
+    altitude: number | null;
+    accuracy: number;
+    altitudeAccuracy: number | null;
+    heading: number | null;
+    speed: number | null;
+  };
+  timestamp: number;
 }
 
 export interface TrackerType {
   inUse: boolean;
-  // startGPS: {},
-  // positions: [],
+  startGPS: GeolocationType | null;
+  positions: [GeolocationType] | null;
   // watchId: null,
 }
 

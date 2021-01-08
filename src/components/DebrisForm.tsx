@@ -4,6 +4,7 @@ import { TextInput } from 'react-native-paper';
 import { useAppDispatch, useAppState } from '../context/appContext';
 import colors from '../../colors';
 import FinishedButton from './FinishedButton';
+import Button from './Button';
 
 const initErrorState = {
   isError: false,
@@ -59,7 +60,6 @@ const DebrisForm: React.FC = () => {
       setSuccess(false);
     }
   }, [success, context.started, context.finished, error.isError]);
-
   return (
     <View style={styles.container}>
       <Text style={styles.text}>What did you collect?</Text>
@@ -113,25 +113,14 @@ const DebrisForm: React.FC = () => {
         </View>
       )}
       {!context.finished && (
-        <Pressable
-          onPress={() => submitDebris()}
-          style={({ pressed }) => [
-            {
-              transform: [
-                { translateX: pressed ? 0 : 0 },
-                { translateY: pressed ? 5 : 0 },
-              ],
-              shadowColor: pressed ? 'transparent' : colors.black,
-              shadowOffset: pressed
-                ? { width: 0, height: 0 }
-                : { width: 0, height: 5 },
-              shadowOpacity: 1.0,
-            },
-            styles.button,
-            styles.startButton,
-          ]}>
-          <Text style={styles.buttonText}>Collect!</Text>
-        </Pressable>
+        <Button
+          pressCb={submitDebris}
+          message="Collect!"
+          styles={{
+            container: { ...styles.button, ...styles.startButton },
+            text: styles.buttonText,
+          }}
+        />
       )}
       <FinishedButton />
 

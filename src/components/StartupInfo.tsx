@@ -1,20 +1,27 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { View, StyleSheet, Pressable, Modal } from 'react-native';
+import { View, StyleSheet, Pressable, Modal, Platform } from 'react-native';
 import { Switch, Text } from 'react-native-paper';
+import Geolocation from 'react-native-geolocation-service';
 import { useAppDispatch, useAppState } from '../context/appContext';
 import { TabParamList } from '../customTypes/navigation';
 import colors from '../../colors';
+import Button from './Button';
 
 type StartNavProp = BottomTabNavigationProp<TabParamList, 'Debris'>;
 
 const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
   navigation,
 }) => {
-  const { started, tracker } = useAppState();
-  const [isGpsOn, toggleGPS] = useState(started);
+  const { started, stats, tracker } = useAppState();
   const [open, setOpen] = useState(false);
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (Platform.OS === 'ios') {
+      Geolocation.requestAuthorization('always');
+    }
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -35,14 +42,15 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
             Track your GPS and distanced traveled during cleanup?
           </Text>
           <View style={styles.gps}>
-            <Text style={{ color: isGpsOn ? colors.orange : colors.gray }}>
-              GPS({isGpsOn ? 'on' : 'off'})
+            <Text
+              style={{ color: tracker.inUse ? colors.orange : colors.gray }}>
+              GPS({tracker.inUse ? 'on' : 'off'})
             </Text>
             <Switch
               style={styles.switch}
               color={colors.main}
-              value={isGpsOn}
-              onValueChange={toggleGPS}
+              value={tracker.inUse}
+              onValueChange={toggleGps}
             />
           </View>
         </View>
@@ -60,46 +68,24 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
       </View>
       <View />
       {!started && (
-        <Pressable
-          onPress={() => handleStartPress()}
-          style={({ pressed }) => [
-            {
-              transform: [
-                { translateX: pressed ? 5 : 0 },
-                { translateY: pressed ? 5 : 0 },
-              ],
-              shadowColor: pressed ? 'transparent' : colors.black,
-              shadowOffset: pressed
-                ? { width: 0, height: 0 }
-                : { width: 5, height: 5 },
-              shadowOpacity: 1.0,
-            },
-            styles.button,
-            styles.startButton,
-          ]}>
-          <Text style={styles.buttonText}>START!</Text>
-        </Pressable>
+        <Button
+          pressCb={handleStartPress}
+          message="START!"
+          styles={{
+            container: { ...styles.button, ...styles.startButton },
+            text: styles.buttonText,
+          }}
+        />
       )}
       {started && (
-        <Pressable
-          onPress={() => handleResetPress()}
-          style={({ pressed }) => [
-            {
-              transform: [
-                { translateX: pressed ? 5 : 0 },
-                { translateY: pressed ? 5 : 0 },
-              ],
-              shadowColor: pressed ? 'transparent' : colors.black,
-              shadowOffset: pressed
-                ? { width: 0, height: 0 }
-                : { width: 5, height: 5 },
-              shadowOpacity: 1.0,
-            },
-            styles.button,
-            styles.resetButton,
-          ]}>
-          <Text style={[styles.buttonText, styles.resetButtonText]}>Reset</Text>
-        </Pressable>
+        <Button
+          pressCb={handleResetPress}
+          message="Reset"
+          styles={{
+            container: { ...styles.button, ...styles.resetButton },
+            text: { ...styles.buttonText, ...styles.resetButtonText },
+          }}
+        />
       )}
       <Modal animationType="slide" transparent={true} visible={open}>
         <View style={styles.modalContainer}>
@@ -128,12 +114,44 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
 
   /*********** Util Functions *************/
 
+  function toggleGps() {
+    dispatch({
+      type: 'TOGGLE_GPS',
+      payload: {
+        tracker: {
+          ...tracker,
+          inUse: !tracker.inUse,
+        },
+      },
+    });
+  }
+
   function handleStartPress() {
-    if (isGpsOn) {
+    let newTrackerInfo = { ...tracker };
+    if (tracker.inUse) {
       // get initial location data:
+      Geolocation.getCurrentPosition(
+        (position) => {
+          newTrackerInfo = {
+            ...newTrackerInfo,
+            startGPS: { ...position },
+          };
+          dispatch({
+            type: 'ADD_START_GPS',
+            payload: {
+              tracker: newTrackerInfo,
+            },
+          });
+        },
+        (error) => {
+          // See error code charts below.
+          console.log(error.code, error.message);
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+      );
     }
     const dateObject = new Date();
-    const startTime = dateObject.getTime();
+    const initialStartTime = dateObject.getTime();
     const date = dateObject.toLocaleDateString();
 
     /**  context: {
@@ -150,12 +168,10 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
       payload: {
         started: true,
         stats: {
+          ...stats,
           date,
-          startTime,
-        },
-        tracker: {
-          ...tracker,
-          inUse: isGpsOn,
+          initialStartTime,
+          currentStartTime: initialStartTime,
         },
       },
     });
@@ -167,15 +183,8 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
   }
 
   function handleModalReset() {
-    toggleGPS(false);
     dispatch({
       type: 'RESET',
-      payload: {
-        tracker: {
-          ...tracker,
-          inUse: isGpsOn,
-        },
-      },
     });
     setOpen(false);
   }

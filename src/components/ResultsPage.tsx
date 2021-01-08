@@ -10,7 +10,7 @@ import {
 import { DataTable, Headline, List, Divider } from 'react-native-paper';
 import { useAppState } from '../context/appContext';
 import colors from '../../colors';
-import { getTimeString, getTotalTime } from '../utils/date-time';
+import { convertTimeForDisplay, getTimeString } from '../utils/date-time';
 
 function wait(timeout: number) {
   return new Promise((resolve) => {
@@ -23,16 +23,23 @@ const ResultsPage: React.FC = () => {
   const {
     finished,
     debrisCollected,
-    stats: { date, startTime, endTime, totalCollected, totalDistance },
+    stats: {
+      date,
+      initialStartTime,
+      totalTime,
+      endTime,
+      totalCollected,
+      totalDistance,
+    },
   } = useAppState();
-  const totalTime =
-    finished && startTime && endTime ? getTotalTime(startTime, endTime) : 'N/A';
-  const displayRows = getDebrisRows();
 
+  const displayRows = getDebrisRows();
+  const { hours, mins, secs } = convertTimeForDisplay(totalTime);
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     wait(2000).then(() => setRefreshing(false));
   }, []);
+  console.log('Results, totalTime, ', totalTime);
 
   return (
     <ScrollView
@@ -81,7 +88,9 @@ const ResultsPage: React.FC = () => {
               <Divider style={styles.divider} />
               <View style={styles.statField}>
                 <Text>Cleanup Start Time: </Text>
-                <Text style={styles.statData}>{getTimeString(startTime)}</Text>
+                <Text style={styles.statData}>
+                  {getTimeString(initialStartTime)}
+                </Text>
               </View>
               <Divider style={styles.divider} />
 
@@ -93,7 +102,9 @@ const ResultsPage: React.FC = () => {
 
               <View style={styles.statField}>
                 <Text>TotalTime:</Text>
-                <Text style={styles.statData}>{totalTime}</Text>
+                <Text style={styles.statData}>
+                  {finished && `${hours}:${mins}:${secs}`}
+                </Text>
               </View>
               <Divider style={styles.divider} />
 
