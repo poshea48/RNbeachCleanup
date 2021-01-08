@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useReducer } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   ActionType,
   AppState,
@@ -30,7 +37,7 @@ const DebrisList = [
   'Other',
 ];
 
-const initialState: AppState = {
+const blankState: AppState = {
   started: false,
   finished: false,
   debrisCollected: null,
@@ -61,9 +68,9 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
   switch (type) {
     case 'RESET':
       return {
-        ...initialState,
+        ...blankState,
         tracker: {
-          ...initialState.tracker,
+          ...blankState.tracker,
           inUse: state.tracker.inUse,
         },
       };
@@ -216,7 +223,27 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
 };
 
 const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [initialState, setInitState] = useState(blankState);
   const [state, dispatch] = useReducer(cleanupReducer, initialState);
+
+  // get state from local storage, if any
+  useEffect(() => {
+    AsyncStorage.getItem('@debrisState').then(
+      (value) =>
+        value &&
+        setInitState((storedState) => {
+          return {
+            ...storedState,
+            ...JSON.parse(value),
+          };
+        }),
+    );
+  }, []);
+
+  // store state to local storage when updated and after initial render
+  useEffect(() => {
+    AsyncStorage.setItem('@debrisState', JSON.stringify(state));
+  }, [state]);
 
   return (
     <AppStateContext.Provider value={state}>

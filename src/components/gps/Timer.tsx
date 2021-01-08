@@ -37,7 +37,6 @@ const Timer: React.FC = () => {
     }
     return () => timerId && clearInterval(timerId);
   }, [stats.currentStartTime, timeDisplay, finished, stats.totalTime]);
-  console.log('Timer, totalTime, ', stats.totalTime);
   return (
     <View style={styles.container}>
       <View style={styles.timerDisplay}>
