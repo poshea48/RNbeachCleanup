@@ -6,7 +6,7 @@ import colors from '../../colors';
 
 const FinishedButton: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { finished } = useAppState();
+  const { finished, stats } = useAppState();
   return (
     <View style={styles.container}>
       {finished ? (
@@ -62,6 +62,12 @@ const FinishedButton: React.FC = () => {
   function handleResumePress() {
     dispatch({
       type: 'RESUME_CLEANUP',
+      payload: {
+        stats: {
+          ...stats,
+          currentStartTime: Date.now(),
+        },
+      },
     });
   }
   function handleFinishedPress() {
@@ -69,6 +75,7 @@ const FinishedButton: React.FC = () => {
       type: 'END_CLEANUP',
       payload: {
         stats: {
+          ...stats,
           endTime: Date.now(),
         },
       },

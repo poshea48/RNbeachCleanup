@@ -42,8 +42,8 @@ const initialState: AppState = {
   },
   stats: {
     date: '',
-    started: false,
-    startTime: 0,
+    initialStartTime: 0,
+    currentStartTime: 0,
     endTime: 0,
     totalTime: 0,
     totalCollected: 0,
@@ -178,6 +178,12 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
         stats: {
           ...state.stats,
           ...payload?.stats,
+          currentStartTime: 0,
+          totalTime: payload?.stats
+            ? Math.floor(
+                (payload.stats.endTime - state.stats.currentStartTime) / 1000,
+              ) + state.stats.totalTime
+            : state.stats.totalTime,
         },
       };
     case 'RESUME_CLEANUP':
@@ -186,6 +192,7 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
         finished: false,
         stats: {
           ...state.stats,
+          ...payload?.stats,
           endTime: 0,
         },
       };

@@ -151,7 +151,7 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
       );
     }
     const dateObject = new Date();
-    const startTime = dateObject.getTime();
+    const initialStartTime = dateObject.getTime();
     const date = dateObject.toLocaleDateString();
 
     /**  context: {
@@ -170,8 +170,8 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
         stats: {
           ...stats,
           date,
-          started: true,
-          startTime,
+          initialStartTime,
+          currentStartTime: initialStartTime,
         },
       },
     });

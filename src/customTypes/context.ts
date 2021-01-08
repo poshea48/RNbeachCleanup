@@ -10,8 +10,8 @@ export interface LocationState {
 
 export interface StatsState {
   date: string;
-  started: boolean;
-  startTime: number;
+  initialStartTime: number;
+  currentStartTime: number;
   endTime: number;
   totalTime: number;
   totalCollected: number;

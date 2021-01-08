@@ -6,9 +6,9 @@ import { convertTimeForDisplay } from '../../utils/date-time';
 import Button from '../Button';
 
 const Timer: React.FC = () => {
-  const { stats } = useAppState();
+  const { started, finished, stats } = useAppState();
   const [timeDisplay, setTimeDisplay] = useState(
-    stats.totalTime + Math.floor((Date.now() - stats.startTime) / 1000),
+    stats.totalTime + Math.floor((Date.now() - stats.currentStartTime) / 1000),
   );
   const [timer, setTimer] = useState({
     hours: '00',
@@ -19,18 +19,25 @@ const Timer: React.FC = () => {
 
   useEffect(() => {
     let timerId: NodeJS.Timeout | undefined;
-    if (stats.startTime) {
+    if (finished) {
+      setTimeDisplay(stats.totalTime);
+      setTimer(convertTimeForDisplay(stats.totalTime));
+      return;
+    }
+    if (stats.currentStartTime) {
+      if (finished && timerId) {
+        clearInterval(timerId);
+        return;
+      }
       timerId = setInterval(() => {
         const newTime = timeDisplay + 1;
         setTimer(convertTimeForDisplay(newTime));
         setTimeDisplay(newTime);
       }, 1000);
-    } else if (timerId) {
-      clearInterval(timerId);
     }
     return () => timerId && clearInterval(timerId);
-  }, [stats.startTime, timeDisplay]);
-  console.log(stats);
+  }, [stats.currentStartTime, timeDisplay, finished, stats.totalTime]);
+  console.log('Timer, totalTime, ', stats.totalTime);
   return (
     <View style={styles.container}>
       <View style={styles.timerDisplay}>
@@ -41,7 +48,7 @@ const Timer: React.FC = () => {
         <Text style={styles.timerText}>{timer.secs}</Text>
       </View>
       <View style={styles.buttonContainer}>
-        {stats.startTime ? (
+        {stats.currentStartTime && !finished ? (
           <Button
             pressCb={pause}
             message="Pause"
@@ -50,7 +57,7 @@ const Timer: React.FC = () => {
               text: { color: colors.white },
             }}
           />
-        ) : stats.started ? (
+        ) : started && !finished ? (
           <Button
             pressCb={resume}
             message="Resume"
@@ -59,7 +66,7 @@ const Timer: React.FC = () => {
               text: { color: colors.white },
             }}
           />
-        ) : (
+        ) : !finished ? (
           <Button
             pressCb={() => console.log('resume')}
             message="Start"
@@ -68,7 +75,7 @@ const Timer: React.FC = () => {
               text: { color: colors.white },
             }}
           />
-        )}
+        ) : null}
       </View>
     </View>
   );
@@ -81,9 +88,10 @@ const Timer: React.FC = () => {
       payload: {
         stats: {
           ...stats,
-          startTime: 0,
+          currentStartTime: 0,
           totalTime:
-            stats.totalTime + Math.floor((Date.now() - stats.startTime) / 1000),
+            stats.totalTime +
+            Math.floor((Date.now() - stats.currentStartTime) / 1000),
         },
       },
     });
@@ -95,7 +103,7 @@ const Timer: React.FC = () => {
       payload: {
         stats: {
           ...stats,
-          startTime: Date.now(),
+          currentStartTime: Date.now(),
         },
       },
     });
