@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useReducer } from 'react';
+import React, { createContext, useContext, useEffect, useReducer } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   ActionType,
   AppState,
@@ -33,6 +34,7 @@ const DebrisList = [
 const initialState: AppState = {
   started: false,
   finished: false,
+  dataSubmitted: false,
   debrisCollected: null,
   debrisList: DebrisList,
   location: {
@@ -59,6 +61,11 @@ const initialState: AppState = {
 const cleanupReducer = (state: AppState, action: ActionType): AppState => {
   const { type, payload } = action;
   switch (type) {
+    case 'ADD_ASYNC_STORAGE':
+      return {
+        ...state,
+        ...payload,
+      };
     case 'RESET':
       return {
         ...initialState,
@@ -218,6 +225,24 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
 const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(cleanupReducer, initialState);
 
+  // get state from local storage, if any
+  useEffect(() => {
+    AsyncStorage.getItem('@debrisState').then((value) => {
+      return (
+        value &&
+        dispatch({
+          type: 'ADD_ASYNC_STORAGE',
+          payload: JSON.parse(value),
+        })
+      );
+    });
+  }, []);
+
+  // store state to local storage when updated and after initial render
+  useEffect(() => {
+    AsyncStorage.setItem('@debrisState', JSON.stringify(state));
+  }, [state]);
+  console.log('here is current state, ', state);
   return (
     <AppStateContext.Provider value={state}>
       <AppDispatchContext.Provider value={dispatch}>
