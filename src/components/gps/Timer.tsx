@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   timerDisplay: {
     flexDirection: 'row',
     justifyContent: 'center',
-    paddingVertical: 20,
+    paddingVertical: 10,
     alignSelf: 'center',
   },
   timerText: {
