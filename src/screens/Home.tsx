@@ -11,8 +11,9 @@ type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
 const Home: React.FC<{ navigation: HomeScreenNavigationProp }> = ({
   navigation,
 }) => {
-  const { started } = useAppState();
+  const { started, dataSubmitted } = useAppState();
   const dispatch = useAppDispatch();
+
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.heading}>Beach Cleanup App</Text>
@@ -26,7 +27,7 @@ const Home: React.FC<{ navigation: HomeScreenNavigationProp }> = ({
         }}>
         <Text style={styles.button}>New Cleanup</Text>
       </Button>
-      {started && (
+      {started && !dataSubmitted && (
         <Button
           contentStyle={contentStyle}
           mode="contained"

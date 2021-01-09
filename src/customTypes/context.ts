@@ -41,6 +41,7 @@ export interface TrackerType {
 export interface AppState {
   started: boolean;
   finished: boolean;
+  dataSubmitted: boolean;
   debrisCollected: null | DebrisCollectedType;
   debrisList: string[];
   location: LocationState;
