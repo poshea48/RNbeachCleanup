@@ -7,6 +7,8 @@ import { useAppDispatch, useAppState } from '../context/appContext';
 import { TabParamList } from '../customTypes/navigation';
 import colors from '../../colors';
 import Button from './Button';
+import { AnimatedRegion, Marker } from 'react-native-maps';
+import { GeolocationType } from '../customTypes/context';
 
 type StartNavProp = BottomTabNavigationProp<TabParamList, 'Debris'>;
 
@@ -15,8 +17,17 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
 }) => {
   const { started, stats, tracker } = useAppState();
   const [open, setOpen] = useState(false);
+  const [marker, setMarker] = useState(null);
+  const [coordinate, setCoordinate] = useState(
+    new AnimatedRegion({
+      ...tracker.currentCoordinates,
+      latitude: tracker.currentCoordinates?.latitude || 0,
+      longitude: tracker.currentCoordinates?.longitude || 0,
+      latitudeDelta: 0,
+      longitudeDelta: 0,
+    }),
+  );
   const dispatch = useAppDispatch();
-
   useEffect(() => {
     if (Platform.OS === 'ios') {
       Geolocation.requestAuthorization('always');
@@ -134,7 +145,10 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
         (position) => {
           newTrackerInfo = {
             ...newTrackerInfo,
-            startGPS: { ...position },
+            currentCoordinates: {
+              longitude: position.coords.longitude,
+              latitude: position.coords.latitude,
+            },
           };
           dispatch({
             type: 'ADD_START_GPS',
@@ -177,6 +191,63 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
     });
     navigation.navigate('Debris');
   }
+
+  function handleWatchCallback(position: {
+    coords: { latitude: number; longitude: any };
+  }) {
+    const routeCoordinates =
+      tracker.routeCoordinates || (([] as unknown) as [GeolocationType]);
+    const { latitude, longitude } = position.coords;
+    const newCoords: GeolocationType = { latitude, longitude };
+    routeCoordinates.push(newCoords);
+
+    if (Platform.OS === 'android') {
+      if (marker) {
+        marker._component.animateMarkerToCoordinate(newCoords, 500);
+      }
+    } else {
+      coordinate.timing(newCoords).start();
+    }
+    dispatch({
+      type: 'UPDATE_COORDS',
+      payload: {
+        tracker: {
+          ...tracker,
+          currentCoordinates: newCoords,
+          routeCoordinates,
+          prevCoordinates: newCoords,
+        },
+      },
+    });
+  }
+
+  // this.watchID = navigator.geolocation.watchPosition(
+  //   (position) => {
+  //     const { routeCoordinates, distanceTravelled } = this.state;
+  //     const { latitude, longitude } = position.coords;
+
+  //     const newCoordinate = {
+  //       latitude,
+  //       longitude,
+  //     };
+  //     console.log({ newCoordinate });
+
+  //     this.setState({
+  //       latitude,
+  //       longitude,
+  //       routeCoordinates: routeCoordinates.concat([newCoordinate]),
+  //       distanceTravelled: distanceTravelled + this.calcDistance(newCoordinate),
+  //       prevLatLng: newCoordinate,
+  //     });
+  //   },
+  //   (error) => console.log(error),
+  //   {
+  //     enableHighAccuracy: true,
+  //     timeout: 20000,
+  //     maximumAge: 1000,
+  //     distanceFilter: 10,
+  //   },
+  // );
 
   function handleResetPress() {
     setOpen(true);

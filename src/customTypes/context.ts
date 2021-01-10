@@ -19,23 +19,16 @@ export interface StatsState {
 }
 
 export interface GeolocationType {
-  coords: {
-    latitude: number;
-    longitude: number;
-    altitude: number | null;
-    accuracy: number;
-    altitudeAccuracy: number | null;
-    heading: number | null;
-    speed: number | null;
-  };
-  timestamp: number;
+  latitude: number;
+  longitude: number;
 }
 
 export interface TrackerType {
   inUse: boolean;
-  startGPS: GeolocationType | null;
-  positions: [GeolocationType] | null;
-  // watchId: null,
+  currentCoordinates: GeolocationType | null;
+  prevCoordinates: GeolocationType | null;
+  routeCoordinates: [GeolocationType] | null;
+  watchId: number | null;
 }
 
 export interface AppState {

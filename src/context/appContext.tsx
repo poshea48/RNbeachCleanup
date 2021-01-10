@@ -53,8 +53,10 @@ const initialState: AppState = {
   },
   tracker: {
     inUse: false,
-    startGPS: null,
-    positions: null,
+    currentCoordinates: null,
+    prevCoordinates: null,
+    routeCoordinates: null,
+    watchId: null,
   },
 };
 
@@ -242,7 +244,6 @@ const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   useEffect(() => {
     AsyncStorage.setItem('@debrisState', JSON.stringify(state));
   }, [state]);
-  console.log('here is current state, ', state);
   return (
     <AppStateContext.Provider value={state}>
       <AppDispatchContext.Provider value={dispatch}>
