@@ -49,6 +49,7 @@ export interface PayloadType {
   location?: LocationState;
   stats?: StatsState;
   tracker?: TrackerType;
+  coords?: GeolocationType;
 }
 
 export interface ActionType {

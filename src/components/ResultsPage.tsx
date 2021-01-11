@@ -39,7 +39,6 @@ const ResultsPage: React.FC = () => {
     setRefreshing(true);
     wait(2000).then(() => setRefreshing(false));
   }, []);
-  console.log('Results, totalTime, ', totalTime);
 
   return (
     <ScrollView

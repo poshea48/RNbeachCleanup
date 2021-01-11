@@ -5,6 +5,7 @@ import {
   AppState,
   DebrisCollectedType,
   DispatchType,
+  GeolocationType,
 } from '../customTypes/context';
 
 const AppStateContext = createContext<AppState | null>(null);
@@ -165,6 +166,28 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
         tracker: {
           ...state.tracker,
           ...payload?.tracker,
+        },
+      };
+    case 'UPDATE_COORDS':
+      const { longitude: currentLong, latitude: currentLat } =
+        state.tracker.currentCoordinates ||
+        ({ longitude: 0, latitude: 0 } as GeolocationType);
+      const newCoords = { ...payload?.coords } as GeolocationType;
+      const routeCoordinates = state.tracker.routeCoordinates
+        ? [...state.tracker.routeCoordinates]
+        : [];
+
+      return {
+        ...state,
+        tracker: {
+          ...state.tracker,
+          currentCoordinates: newCoords || {
+            ...state.tracker.currentCoordinates,
+          },
+          prevCoordinates: { longitude: currentLong, latitude: currentLat },
+          routeCoordinates: [...routeCoordinates, newCoords] as [
+            GeolocationType,
+          ],
         },
       };
     case 'START_CLEANUP':

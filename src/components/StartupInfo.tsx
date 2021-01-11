@@ -3,12 +3,11 @@ import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { View, StyleSheet, Pressable, Modal, Platform } from 'react-native';
 import { Switch, Text } from 'react-native-paper';
 import Geolocation from 'react-native-geolocation-service';
+
 import { useAppDispatch, useAppState } from '../context/appContext';
 import { TabParamList } from '../customTypes/navigation';
 import colors from '../../colors';
 import Button from './Button';
-import { AnimatedRegion, Marker } from 'react-native-maps';
-import { GeolocationType } from '../customTypes/context';
 
 type StartNavProp = BottomTabNavigationProp<TabParamList, 'Debris'>;
 
@@ -17,22 +16,21 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
 }) => {
   const { started, stats, tracker } = useAppState();
   const [open, setOpen] = useState(false);
-  const [marker, setMarker] = useState(null);
-  const [coordinate, setCoordinate] = useState(
-    new AnimatedRegion({
-      ...tracker.currentCoordinates,
-      latitude: tracker.currentCoordinates?.latitude || 0,
-      longitude: tracker.currentCoordinates?.longitude || 0,
-      latitudeDelta: 0,
-      longitudeDelta: 0,
-    }),
-  );
+  const [watchId, setWatchId] = useState<number | null>(null);
+
   const dispatch = useAppDispatch();
   useEffect(() => {
+    console.log('watchId, ', watchId);
     if (Platform.OS === 'ios') {
       Geolocation.requestAuthorization('always');
     }
-  }, []);
+    return () => {
+      if (watchId) {
+        Geolocation.clearWatch(watchId);
+        setWatchId(null);
+      }
+    };
+  }, [watchId]);
 
   return (
     <View style={styles.container}>
@@ -163,6 +161,15 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
         },
         { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
       );
+      const newWatch = Geolocation.watchPosition(
+        handleWatchCallback,
+        (error) => console.log(error),
+        {
+          enableHighAccuracy: true,
+          distanceFilter: 10,
+        },
+      );
+      setWatchId(newWatch);
     }
     const dateObject = new Date();
     const initialStartTime = dateObject.getTime();
@@ -193,29 +200,24 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
   }
 
   function handleWatchCallback(position: {
-    coords: { latitude: number; longitude: any };
+    coords: { latitude: number; longitude: number };
   }) {
-    const routeCoordinates =
-      tracker.routeCoordinates || (([] as unknown) as [GeolocationType]);
     const { latitude, longitude } = position.coords;
-    const newCoords: GeolocationType = { latitude, longitude };
-    routeCoordinates.push(newCoords);
-
-    if (Platform.OS === 'android') {
-      if (marker) {
-        marker._component.animateMarkerToCoordinate(newCoords, 500);
-      }
-    } else {
-      coordinate.timing(newCoords).start();
-    }
+    // if (Platform.OS === 'android') {
+    //   if (marker) {
+    //     marker._component.animateMarkerToCoordinate(newCoords, 500);
+    //   }
+    // } else {
+    //   coordinate
+    //     .timing({ ...newCoords, duration: 500, useNativeDriver: true })
+    //     .start();
+    // }
     dispatch({
       type: 'UPDATE_COORDS',
       payload: {
-        tracker: {
-          ...tracker,
-          currentCoordinates: newCoords,
-          routeCoordinates,
-          prevCoordinates: newCoords,
+        coords: {
+          latitude,
+          longitude,
         },
       },
     });
