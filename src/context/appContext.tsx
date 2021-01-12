@@ -54,6 +54,7 @@ const initialState: AppState = {
   },
   tracker: {
     inUse: false,
+    initialCoordinates: null,
     currentCoordinates: null,
     prevCoordinates: null,
     routeCoordinates: null,
@@ -160,12 +161,13 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
           inUse: !state.tracker.inUse,
         },
       };
-    case 'ADD_START_GPS':
+    case 'ADD_INITIAL_GPS':
+      const initialCoordinates: GeolocationType = payload?.coords as GeolocationType;
       return {
         ...state,
         tracker: {
           ...state.tracker,
-          ...payload?.tracker,
+          initialCoordinates,
         },
       };
     case 'UPDATE_COORDS':

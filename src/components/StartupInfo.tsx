@@ -136,22 +136,17 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
   }
 
   function handleStartPress() {
-    let newTrackerInfo = { ...tracker };
     if (tracker.inUse) {
       // get initial location data:
       Geolocation.getCurrentPosition(
         (position) => {
-          newTrackerInfo = {
-            ...newTrackerInfo,
-            currentCoordinates: {
-              longitude: position.coords.longitude,
-              latitude: position.coords.latitude,
-            },
-          };
           dispatch({
-            type: 'ADD_START_GPS',
+            type: 'ADD_INITIAL_GPS',
             payload: {
-              tracker: newTrackerInfo,
+              coords: {
+                longitude: position.coords.longitude,
+                latitude: position.coords.latitude,
+              },
             },
           });
         },

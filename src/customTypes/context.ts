@@ -25,6 +25,7 @@ export interface GeolocationType {
 
 export interface TrackerType {
   inUse: boolean;
+  initialCoordinates: GeolocationType | null;
   currentCoordinates: GeolocationType | null;
   prevCoordinates: GeolocationType | null;
   routeCoordinates: [GeolocationType] | null;
