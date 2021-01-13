@@ -198,15 +198,6 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
     coords: { latitude: number; longitude: number };
   }) {
     const { latitude, longitude } = position.coords;
-    // if (Platform.OS === 'android') {
-    //   if (marker) {
-    //     marker._component.animateMarkerToCoordinate(newCoords, 500);
-    //   }
-    // } else {
-    //   coordinate
-    //     .timing({ ...newCoords, duration: 500, useNativeDriver: true })
-    //     .start();
-    // }
     dispatch({
       type: 'UPDATE_COORDS',
       payload: {

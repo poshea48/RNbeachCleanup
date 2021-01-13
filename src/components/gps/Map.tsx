@@ -1,84 +1,94 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { Dimensions, Platform } from 'react-native';
-import MapView, { AnimatedRegion, Marker, Polyline } from 'react-native-maps';
-
+import MapView, {
+  MarkerAnimated,
+  AnimatedRegion,
+  Polyline,
+} from 'react-native-maps';
 import { useAppState } from '../../context/appContext';
 
 const Map: React.FC = () => {
-  const { tracker } = useAppState();
-  const [refMarker, setMarker] = useState(null);
-  const [coordinate, setCoordinate] = useState(
-    new AnimatedRegion({
-      latitude: tracker?.currentCoordinates?.latitude || 0,
-      longitude: tracker?.currentCoordinates?.longitude || 0,
-      latitudeDelta: 0,
-      longitudeDelta: 0,
-    }),
-  );
-
-  const { routeCoordinates } = tracker;
-  // const [markerCoords, setMarkerCoords] = useState(
-  //   new AnimatedRegion({
-  //     ...tracker.currentCoordinates,
-  //     latitude: tracker.currentCoordinates?.latitude || 0,
-  //     longitude: tracker.currentCoordinates?.longitude || 0,
-  //     latitudeDelta: 0,
-  //     longitudeDelta: 0,
-  //   }),
-  // );
-
   const { width, height } = Dimensions.get('window');
-
   const ASPECT_RATIO = width / height;
   const LATITUDE_DELTA = 0.00922;
   const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
-  //TODO fix this
-  // useEffect(() => {
-  //   const duration = 500;
-  //   if (Platform.OS === 'android') {
-  //     if (refMarker) {
-  //       refMarker.animateMarkerToCoordinate(getCurrentMapRegion(), duration);
-  //     }
-  //   } else {
-  //     // const coords = getCurrentMapRegion();
-  //     // coordinate
-  //     //   .timing({
-  //     //     ...coords,
-  //     //     duration,
-  //     //   })
-  //     //   .start();
-  //   }
-  // }, [coordinate]);
+  const { tracker } = useAppState();
+  const { latitude, longitude } = tracker.currentCoordinates || {
+    latitude: 0,
+    longitude: 0,
+  };
 
-  function getCurrentMapRegion(): AnimatedRegion {
-    return new AnimatedRegion({
-      latitude: tracker.currentCoordinates?.latitude || 0,
-      longitude: tracker.currentCoordinates?.longitude || 0,
-      latitudeDelta: LATITUDE_DELTA,
+  const { routeCoordinates } = tracker;
+  const refMarker = useRef<MarkerAnimated | null>(null);
+  const getDeltas = useCallback(() => {
+    return {
       longitudeDelta: LONGITUDE_DELTA,
-    });
-  }
+      latitudeDelta: LATITUDE_DELTA,
+    };
+  }, [LONGITUDE_DELTA]);
 
-  function getInitialRegion() {
+  const getInitialRegion = useCallback(() => {
     return {
       latitude: tracker.initialCoordinates?.latitude || 0,
       longitude: tracker.initialCoordinates?.longitude || 0,
-      latitudeDelta: LATITUDE_DELTA,
-      longitudeDelta: LONGITUDE_DELTA,
+      ...getDeltas(),
     };
-  }
+  }, [
+    getDeltas,
+    tracker.initialCoordinates?.latitude,
+    tracker.initialCoordinates?.longitude,
+  ]);
+
+  const getAnimatedCoords = useCallback(() => {
+    return new AnimatedRegion({
+      latitude,
+      longitude,
+      ...getDeltas(),
+    });
+  }, [getDeltas, latitude, longitude]);
+
+  const coordinate = getAnimatedCoords();
+
+  useEffect(() => {
+    const duration = 500;
+    if (Platform.OS === 'android') {
+      if (refMarker.current) {
+        const coords = {
+          latitude,
+          longitude,
+        };
+        refMarker.current.animateMarkerToCoordinate(coords, duration);
+      }
+    } else {
+      coordinate
+        .timing({
+          latitude,
+          longitude,
+          ...getDeltas(),
+          useNativeDriver: false,
+        })
+        .start();
+    }
+    return () => {
+      if (refMarker.current) {
+        refMarker.current = null;
+      }
+    };
+  }, [coordinate, getDeltas, latitude, longitude, refMarker]);
 
   return (
     <MapView
       style={{ flex: 1 }}
+      minZoomLevel={15}
       initialRegion={getInitialRegion()}
-      followsUserLocation={true}>
+      followsUserLocation>
       <Polyline coordinates={routeCoordinates || []} strokeWidth={5} />
-      {/* <Marker.Animated
-        ref={(marker) => setMarker(marker)}
+      <MarkerAnimated
+        ref={(marker: MarkerAnimated) => (refMarker.current = marker)}
+        anchor={{ x: 0.5, y: 0.5 }}
         coordinate={coordinate}
-      /> */}
+      />
     </MapView>
   );
 };
