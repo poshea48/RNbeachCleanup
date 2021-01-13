@@ -8,6 +8,7 @@ import { useAppDispatch, useAppState } from '../context/appContext';
 import { TabParamList } from '../customTypes/navigation';
 import colors from '../../colors';
 import Button from './Button';
+import { GeolocationType } from '../customTypes/context';
 
 type StartNavProp = BottomTabNavigationProp<TabParamList, 'Debris'>;
 
@@ -140,13 +141,12 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
       // get initial location data:
       Geolocation.getCurrentPosition(
         (position) => {
+          if (!position.coords)
+            return console.log('no coordinates were passed');
           dispatch({
             type: 'ADD_INITIAL_GPS',
             payload: {
-              coords: {
-                longitude: position.coords.longitude,
-                latitude: position.coords.latitude,
-              },
+              coords: position.coords,
             },
           });
         },
@@ -194,17 +194,11 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
     navigation.navigate('Debris');
   }
 
-  function handleWatchCallback(position: {
-    coords: { latitude: number; longitude: number };
-  }) {
-    const { latitude, longitude } = position.coords;
+  function handleWatchCallback(position: { coords: GeolocationType }) {
     dispatch({
       type: 'UPDATE_COORDS',
       payload: {
-        coords: {
-          latitude,
-          longitude,
-        },
+        coords: position.coords,
       },
     });
   }

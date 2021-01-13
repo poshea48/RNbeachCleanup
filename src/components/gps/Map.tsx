@@ -1,10 +1,6 @@
-import React, { useEffect, useRef, useCallback } from 'react';
-import { Dimensions, Platform } from 'react-native';
-import MapView, {
-  MarkerAnimated,
-  AnimatedRegion,
-  Polyline,
-} from 'react-native-maps';
+import React, { useRef, useCallback } from 'react';
+import { Dimensions } from 'react-native';
+import MapView, { Polyline } from 'react-native-maps';
 import { useAppState } from '../../context/appContext';
 
 const Map: React.FC = () => {
@@ -20,7 +16,8 @@ const Map: React.FC = () => {
   };
 
   const { routeCoordinates } = tracker;
-  const refMarker = useRef<MarkerAnimated | null>(null);
+  const refMap = useRef<MapView | null>(null);
+
   const getDeltas = useCallback(() => {
     return {
       longitudeDelta: LONGITUDE_DELTA,
@@ -40,55 +37,21 @@ const Map: React.FC = () => {
     tracker.initialCoordinates?.longitude,
   ]);
 
-  const getAnimatedCoords = useCallback(() => {
-    return new AnimatedRegion({
-      latitude,
-      longitude,
-      ...getDeltas(),
-    });
-  }, [getDeltas, latitude, longitude]);
-
-  const coordinate = getAnimatedCoords();
-
-  useEffect(() => {
-    const duration = 500;
-    if (Platform.OS === 'android') {
-      if (refMarker.current) {
-        const coords = {
-          latitude,
-          longitude,
-        };
-        refMarker.current.animateMarkerToCoordinate(coords, duration);
-      }
-    } else {
-      coordinate
-        .timing({
-          latitude,
-          longitude,
-          ...getDeltas(),
-          useNativeDriver: false,
-        })
-        .start();
-    }
-    return () => {
-      if (refMarker.current) {
-        refMarker.current = null;
-      }
-    };
-  }, [coordinate, getDeltas, latitude, longitude, refMarker]);
-
   return (
     <MapView
       style={{ flex: 1 }}
+      ref={(ref) => (refMap.current = ref)}
       minZoomLevel={15}
       initialRegion={getInitialRegion()}
+      showsUserLocation={true}
+      onUserLocationChange={() => {
+        console.log('user location changes');
+        refMap.current?.animateCamera({
+          center: { latitude, longitude },
+        });
+      }}
       followsUserLocation>
       <Polyline coordinates={routeCoordinates || []} strokeWidth={5} />
-      <MarkerAnimated
-        ref={(marker: MarkerAnimated) => (refMarker.current = marker)}
-        anchor={{ x: 0.5, y: 0.5 }}
-        coordinate={coordinate}
-      />
     </MapView>
   );
 };

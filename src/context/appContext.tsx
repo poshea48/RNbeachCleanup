@@ -162,7 +162,9 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
         },
       };
     case 'ADD_INITIAL_GPS':
-      const initialCoordinates: GeolocationType = payload?.coords as GeolocationType;
+      const initialCoordinates: GeolocationType = {
+        ...payload?.coords,
+      } as GeolocationType;
       return {
         ...state,
         tracker: {
@@ -171,9 +173,9 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
         },
       };
     case 'UPDATE_COORDS':
-      const { longitude: currentLong, latitude: currentLat } =
-        state.tracker.currentCoordinates ||
-        ({ longitude: 0, latitude: 0 } as GeolocationType);
+      const currentCoords = {
+        ...state.tracker.currentCoordinates,
+      } as GeolocationType;
       const newCoords = { ...payload?.coords } as GeolocationType;
       const routeCoordinates = state.tracker.routeCoordinates
         ? [...state.tracker.routeCoordinates]
@@ -183,10 +185,8 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
         ...state,
         tracker: {
           ...state.tracker,
-          currentCoordinates: newCoords || {
-            ...state.tracker.currentCoordinates,
-          },
-          prevCoordinates: { longitude: currentLong, latitude: currentLat },
+          currentCoordinates: newCoords,
+          prevCoordinates: currentCoords,
           routeCoordinates: [...routeCoordinates, newCoords] as [
             GeolocationType,
           ],
