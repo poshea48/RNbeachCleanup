@@ -19,23 +19,22 @@ export interface StatsState {
 }
 
 export interface GeolocationType {
-  coords: {
-    latitude: number;
-    longitude: number;
-    altitude: number | null;
-    accuracy: number;
-    altitudeAccuracy: number | null;
-    heading: number | null;
-    speed: number | null;
-  };
-  timestamp: number;
+  latitude: number;
+  longitude: number;
+  altitude: number | null;
+  accuracy: number;
+  altitudeAccuracy: number | null;
+  heading: number | null;
+  speed: number | null;
 }
 
 export interface TrackerType {
   inUse: boolean;
-  startGPS: GeolocationType | null;
-  positions: [GeolocationType] | null;
-  // watchId: null,
+  initialCoordinates: GeolocationType | null;
+  currentCoordinates: GeolocationType | null;
+  prevCoordinates: GeolocationType | null;
+  routeCoordinates: [GeolocationType] | null;
+  watchId: number | null;
 }
 
 export interface AppState {
@@ -56,6 +55,7 @@ export interface PayloadType {
   location?: LocationState;
   stats?: StatsState;
   tracker?: TrackerType;
+  coords?: GeolocationType;
 }
 
 export interface ActionType {

@@ -1,70 +1,59 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import React, { useRef, useCallback } from 'react';
+import { Dimensions } from 'react-native';
+import MapView, { Polyline } from 'react-native-maps';
 import { useAppState } from '../../context/appContext';
-import colors from '../../../colors';
-
-interface LocationType {
-  latitude: number;
-  longitude: number;
-}
 
 const Map: React.FC = () => {
-  const { tracker } = useAppState();
-  const [location, setLocation] = useState<LocationType>({
-    latitude: tracker?.startGPS?.coords.latitude || 0,
-    longitude: tracker?.startGPS?.coords.longitude || 0,
-  });
-
   const { width, height } = Dimensions.get('window');
-
   const ASPECT_RATIO = width / height;
-  const LATITUDE_DELTA = 0.0922;
+  const LATITUDE_DELTA = 0.00922;
   const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
+
+  const { tracker } = useAppState();
+  const { latitude, longitude } = tracker.currentCoordinates || {
+    latitude: 0,
+    longitude: 0,
+  };
+
+  const { routeCoordinates } = tracker;
+  const refMap = useRef<MapView | null>(null);
+
+  const getDeltas = useCallback(() => {
+    return {
+      longitudeDelta: LONGITUDE_DELTA,
+      latitudeDelta: LATITUDE_DELTA,
+    };
+  }, [LONGITUDE_DELTA]);
+
+  const getInitialRegion = useCallback(() => {
+    return {
+      latitude: tracker.initialCoordinates?.latitude || 0,
+      longitude: tracker.initialCoordinates?.longitude || 0,
+      ...getDeltas(),
+    };
+  }, [
+    getDeltas,
+    tracker.initialCoordinates?.latitude,
+    tracker.initialCoordinates?.longitude,
+  ]);
 
   return (
     <MapView
       style={{ flex: 1 }}
-      initialRegion={{
-        latitude: location?.latitude,
-        longitude: location?.longitude,
-        latitudeDelta: LATITUDE_DELTA,
-        longitudeDelta: LONGITUDE_DELTA,
+      ref={(ref) => (refMap.current = ref)}
+      minZoomLevel={15}
+      initialRegion={getInitialRegion()}
+      showsUserLocation={true}
+      onUserLocationChange={() => {
+        console.log('user location changes');
+        refMap.current?.animateCamera({
+          center: { latitude, longitude },
+        });
       }}
-      zoomEnabled={true}
-      scrollEnabled={true}
-      showsScale={true}>
-      <Marker
-        key="initial"
-        title="starting point"
-        coordinate={{
-          latitude: location.latitude,
-          longitude: location.longitude,
-        }}
-        pinColor="blue"
-      />
+      followsUserLocation>
+      <Polyline coordinates={routeCoordinates || []} strokeWidth={5} />
     </MapView>
   );
 };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     justifyContent: 'center',
-//     height: '100%',
-//     backgroundColor: colors.main,
-//   },
-//   // heading: {},
-//   // button: {
-//   //   backgroundColor: colors.orange,
-//   //   color: 'white',
-//   //   fontWeight: '700',
-//   //   textTransform: 'uppercase',
-//   //   alignSelf: 'center',
-//   //   textAlign: 'center',
-//   //   paddingHorizontal: 10,
-//   //   borderRadius: 5,
-//   //   marginBottom: 20,
-//   // },
-// });
 
 export default Map;

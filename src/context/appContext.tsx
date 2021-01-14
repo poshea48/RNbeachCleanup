@@ -5,6 +5,7 @@ import {
   AppState,
   DebrisCollectedType,
   DispatchType,
+  GeolocationType,
 } from '../customTypes/context';
 
 const AppStateContext = createContext<AppState | null>(null);
@@ -53,8 +54,11 @@ const initialState: AppState = {
   },
   tracker: {
     inUse: false,
-    startGPS: null,
-    positions: null,
+    initialCoordinates: null,
+    currentCoordinates: null,
+    prevCoordinates: null,
+    routeCoordinates: null,
+    watchId: null,
   },
 };
 
@@ -157,12 +161,35 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
           inUse: !state.tracker.inUse,
         },
       };
-    case 'ADD_START_GPS':
+    case 'ADD_INITIAL_GPS':
+      const initialCoordinates: GeolocationType = {
+        ...payload?.coords,
+      } as GeolocationType;
       return {
         ...state,
         tracker: {
           ...state.tracker,
-          ...payload?.tracker,
+          initialCoordinates,
+        },
+      };
+    case 'UPDATE_COORDS':
+      const currentCoords = {
+        ...state.tracker.currentCoordinates,
+      } as GeolocationType;
+      const newCoords = { ...payload?.coords } as GeolocationType;
+      const routeCoordinates = state.tracker.routeCoordinates
+        ? [...state.tracker.routeCoordinates]
+        : [];
+
+      return {
+        ...state,
+        tracker: {
+          ...state.tracker,
+          currentCoordinates: newCoords,
+          prevCoordinates: currentCoords,
+          routeCoordinates: [...routeCoordinates, newCoords] as [
+            GeolocationType,
+          ],
         },
       };
     case 'START_CLEANUP':
@@ -242,7 +269,6 @@ const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   useEffect(() => {
     AsyncStorage.setItem('@debrisState', JSON.stringify(state));
   }, [state]);
-  console.log('here is current state, ', state);
   return (
     <AppStateContext.Provider value={state}>
       <AppDispatchContext.Provider value={dispatch}>
