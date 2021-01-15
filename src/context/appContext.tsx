@@ -192,6 +192,23 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
           ],
         },
       };
+    case 'ADD_WATCH_ID':
+      const watchId = payload?.watchId || null;
+      return {
+        ...state,
+        tracker: {
+          ...state.tracker,
+          watchId,
+        },
+      };
+    case 'REMOVE_WATCH_ID':
+      return {
+        ...state,
+        tracker: {
+          ...state.tracker,
+          watchId: null,
+        },
+      };
     case 'START_CLEANUP':
       return {
         ...state,

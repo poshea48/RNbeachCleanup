@@ -8,7 +8,7 @@ import { useAppDispatch, useAppState } from '../context/appContext';
 import { TabParamList } from '../customTypes/navigation';
 import colors from '../../colors';
 import Button from './Button';
-import { GeolocationType } from '../customTypes/context';
+import { getInitialPosition, watchPosition } from '../utils/geolocation';
 
 type StartNavProp = BottomTabNavigationProp<TabParamList, 'Debris'>;
 
@@ -17,21 +17,22 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
 }) => {
   const { started, stats, tracker } = useAppState();
   const [open, setOpen] = useState(false);
-  const [watchId, setWatchId] = useState<number | null>(null);
 
   const dispatch = useAppDispatch();
+
   useEffect(() => {
-    console.log('watchId, ', watchId);
     if (Platform.OS === 'ios') {
       Geolocation.requestAuthorization('always');
     }
     return () => {
-      if (watchId) {
-        Geolocation.clearWatch(watchId);
-        setWatchId(null);
+      if (tracker.watchId) {
+        Geolocation.clearWatch(tracker.watchId);
+        dispatch({
+          type: 'REMOVE_WATCH_ID',
+        });
       }
     };
-  }, [watchId]);
+  }, [dispatch, tracker.watchId]);
 
   return (
     <View style={styles.container}>
@@ -139,32 +140,8 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
   function handleStartPress() {
     if (tracker.inUse) {
       // get initial location data:
-      Geolocation.getCurrentPosition(
-        (position) => {
-          if (!position.coords)
-            return console.log('no coordinates were passed');
-          dispatch({
-            type: 'ADD_INITIAL_GPS',
-            payload: {
-              coords: position.coords,
-            },
-          });
-        },
-        (error) => {
-          // See error code charts below.
-          console.log(error.code, error.message);
-        },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
-      );
-      const newWatch = Geolocation.watchPosition(
-        handleWatchCallback,
-        (error) => console.log(error),
-        {
-          enableHighAccuracy: true,
-          distanceFilter: 10,
-        },
-      );
-      setWatchId(newWatch);
+      getInitialPosition(dispatch);
+      watchPosition(dispatch, tracker.watchId);
     }
     const dateObject = new Date();
     const initialStartTime = dateObject.getTime();
@@ -193,43 +170,6 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
     });
     navigation.navigate('Debris');
   }
-
-  function handleWatchCallback(position: { coords: GeolocationType }) {
-    dispatch({
-      type: 'UPDATE_COORDS',
-      payload: {
-        coords: position.coords,
-      },
-    });
-  }
-
-  // this.watchID = navigator.geolocation.watchPosition(
-  //   (position) => {
-  //     const { routeCoordinates, distanceTravelled } = this.state;
-  //     const { latitude, longitude } = position.coords;
-
-  //     const newCoordinate = {
-  //       latitude,
-  //       longitude,
-  //     };
-  //     console.log({ newCoordinate });
-
-  //     this.setState({
-  //       latitude,
-  //       longitude,
-  //       routeCoordinates: routeCoordinates.concat([newCoordinate]),
-  //       distanceTravelled: distanceTravelled + this.calcDistance(newCoordinate),
-  //       prevLatLng: newCoordinate,
-  //     });
-  //   },
-  //   (error) => console.log(error),
-  //   {
-  //     enableHighAccuracy: true,
-  //     timeout: 20000,
-  //     maximumAge: 1000,
-  //     distanceFilter: 10,
-  //   },
-  // );
 
   function handleResetPress() {
     setOpen(true);

@@ -56,6 +56,7 @@ export interface PayloadType {
   stats?: StatsState;
   tracker?: TrackerType;
   coords?: GeolocationType;
+  watchId?: number | null;
 }
 
 export interface ActionType {
