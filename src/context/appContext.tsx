@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useReducer } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Geolocation from 'react-native-geolocation-service';
 import {
   ActionType,
   AppState,
@@ -62,6 +63,21 @@ const initialState: AppState = {
   },
 };
 
+async function removeFromLocal() {
+  try {
+    await AsyncStorage.removeItem('@debrisState');
+  } catch (e) {
+    // remove error
+  }
+
+  console.log('Done.');
+}
+
+function stopWatchPostion(watchId: number | null) {
+  if (watchId == null) return;
+  Geolocation.clearWatch(watchId);
+}
+
 const cleanupReducer = (state: AppState, action: ActionType): AppState => {
   const { type, payload } = action;
   switch (type) {
@@ -71,6 +87,8 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
         ...payload,
       };
     case 'RESET':
+      removeFromLocal();
+      stopWatchPostion(state.tracker.watchId);
       return {
         ...initialState,
         tracker: {
@@ -193,12 +211,18 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
         },
       };
     case 'ADD_WATCH_ID':
-      const watchId = payload?.watchId || null;
+      // == implicitly converts null and undefined to same value
+      if (payload?.watchId == null) {
+        return {
+          ...state,
+        };
+      }
+      console.log('payload.watchId, ', payload.watchId);
       return {
         ...state,
         tracker: {
           ...state.tracker,
-          watchId,
+          watchId: payload.watchId,
         },
       };
     case 'REMOVE_WATCH_ID':
@@ -251,6 +275,10 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
       return {
         ...state,
         stats: { ...state.stats, ...payload?.stats },
+        tracker: {
+          ...state.tracker,
+          watchId: null,
+        },
       };
     case 'RESUME_TIMER':
       return {

@@ -9,6 +9,7 @@ import { TabParamList } from '../customTypes/navigation';
 import colors from '../../colors';
 import Button from './Button';
 import { getInitialPosition, watchPosition } from '../utils/geolocation';
+import { GeolocationType } from '../customTypes/context';
 
 type StartNavProp = BottomTabNavigationProp<TabParamList, 'Debris'>;
 
@@ -33,7 +34,7 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
       }
     };
   }, [dispatch, tracker.watchId]);
-
+  console.log('tracker context in StartupInfo, ', tracker);
   return (
     <View style={styles.container}>
       <Text style={styles.header}>
@@ -141,7 +142,12 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
     if (tracker.inUse) {
       // get initial location data:
       getInitialPosition(dispatch);
-      watchPosition(dispatch, tracker.watchId);
+      watchPosition(
+        dispatch,
+        tracker.watchId,
+        tracker.currentCoordinates ||
+          ({ latitude: 0, longitude: 0 } as GeolocationType),
+      );
     }
     const dateObject = new Date();
     const initialStartTime = dateObject.getTime();

@@ -36,7 +36,6 @@ const Map: React.FC = () => {
     tracker.initialCoordinates?.latitude,
     tracker.initialCoordinates?.longitude,
   ]);
-
   return (
     <MapView
       style={{ flex: 1 }}
