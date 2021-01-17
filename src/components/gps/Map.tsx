@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useEffect } from 'react';
 import { Dimensions } from 'react-native';
 import MapView, { Polyline } from 'react-native-maps';
 import { useAppState } from '../../context/appContext';
@@ -36,23 +36,29 @@ const Map: React.FC = () => {
     tracker.initialCoordinates?.latitude,
     tracker.initialCoordinates?.longitude,
   ]);
+
+  //TODO: Polyline not drawing
   return (
     <MapView
       style={{ flex: 1 }}
       ref={(ref) => (refMap.current = ref)}
       minZoomLevel={15}
-      initialRegion={getInitialRegion()}
+      region={getInitialRegion()}
       showsUserLocation={true}
-      onUserLocationChange={() => {
-        console.log('user location changes');
-        refMap.current?.animateCamera({
-          center: { latitude, longitude },
-        });
-      }}
-      followsUserLocation>
+      followsUserLocation={true}>
       <Polyline coordinates={routeCoordinates || []} strokeWidth={5} />
     </MapView>
   );
+
+  // function handleUserLocationChange({ nativeEvent }) {
+  //   console.log(nativeEvent.coordinate);
+  //   refMap.current?.animateCamera({
+  //     center: {
+  //       latitude: nativeEvent.coordinate.latitude,
+  //       longitude: nativeEvent.coordinate.longitude,
+  //     },
+  //   });
+  // }
 };
 
 export default Map;

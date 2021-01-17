@@ -81,11 +81,45 @@ function stopWatchPostion(watchId: number | null) {
 const cleanupReducer = (state: AppState, action: ActionType): AppState => {
   const { type, payload } = action;
   switch (type) {
-    case 'ADD_ASYNC_STORAGE':
+    case 'START_CLEANUP':
       return {
         ...state,
-        ...payload,
+        started: true,
+        stats: {
+          ...state.stats,
+          ...payload?.stats,
+        },
+        tracker: {
+          ...state.tracker,
+          ...payload?.tracker,
+        },
       };
+    case 'END_CLEANUP':
+      return {
+        ...state,
+        finished: true,
+        stats: {
+          ...state.stats,
+          ...payload?.stats,
+          currentStartTime: 0,
+          totalTime: payload?.stats
+            ? Math.floor(
+                (payload.stats.endTime - state.stats.currentStartTime) / 1000,
+              ) + state.stats.totalTime
+            : state.stats.totalTime,
+        },
+      };
+    case 'RESUME_CLEANUP':
+      return {
+        ...state,
+        finished: false,
+        stats: {
+          ...state.stats,
+          ...payload?.stats,
+          endTime: 0,
+        },
+      };
+
     case 'RESET':
       removeFromLocal();
       stopWatchPostion(state.tracker.watchId);
@@ -95,6 +129,11 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
           ...initialState.tracker,
           inUse: state.tracker.inUse,
         },
+      };
+    case 'ADD_ASYNC_STORAGE':
+      return {
+        ...state,
+        ...payload,
       };
     case 'ADD_DEBRIS':
       if (payload?.debris) {
@@ -155,6 +194,9 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
       } else {
         return { ...state };
       }
+
+    /*********************** GPS reducers **************************/
+
     case 'ADD_LOCATION':
       return {
         ...state,
@@ -191,6 +233,7 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
         },
       };
     case 'UPDATE_COORDS':
+      console.log('updating Coords reducer');
       const currentCoords = {
         ...state.tracker.currentCoordinates,
       } as GeolocationType;
@@ -233,44 +276,8 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
           watchId: null,
         },
       };
-    case 'START_CLEANUP':
-      return {
-        ...state,
-        started: true,
-        stats: {
-          ...state.stats,
-          ...payload?.stats,
-        },
-        tracker: {
-          ...state.tracker,
-          ...payload?.tracker,
-        },
-      };
-    case 'END_CLEANUP':
-      return {
-        ...state,
-        finished: true,
-        stats: {
-          ...state.stats,
-          ...payload?.stats,
-          currentStartTime: 0,
-          totalTime: payload?.stats
-            ? Math.floor(
-                (payload.stats.endTime - state.stats.currentStartTime) / 1000,
-              ) + state.stats.totalTime
-            : state.stats.totalTime,
-        },
-      };
-    case 'RESUME_CLEANUP':
-      return {
-        ...state,
-        finished: false,
-        stats: {
-          ...state.stats,
-          ...payload?.stats,
-          endTime: 0,
-        },
-      };
+
+    /*********************** Timer reducers **************************/
     case 'PAUSE_TIMER':
       return {
         ...state,

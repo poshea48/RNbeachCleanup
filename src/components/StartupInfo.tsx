@@ -8,8 +8,11 @@ import { useAppDispatch, useAppState } from '../context/appContext';
 import { TabParamList } from '../customTypes/navigation';
 import colors from '../../colors';
 import Button from './Button';
-import { getInitialPosition, watchPosition } from '../utils/geolocation';
-import { GeolocationType } from '../customTypes/context';
+import {
+  getInitialPosition,
+  handleSuccessfulWatch,
+  WATCH_OPTIONS,
+} from '../utils/geolocation';
 
 type StartNavProp = BottomTabNavigationProp<TabParamList, 'Debris'>;
 
@@ -138,16 +141,26 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
     });
   }
 
+  // TODO: somehow updating routelocations stopped happening
+
   function handleStartPress() {
     if (tracker.inUse) {
       // get initial location data:
       getInitialPosition(dispatch);
-      watchPosition(
-        dispatch,
-        tracker.watchId,
-        tracker.currentCoordinates ||
-          ({ latitude: 0, longitude: 0 } as GeolocationType),
+      const watchId = Geolocation.watchPosition(
+        (position) => {
+          console.log('tracker context here inside watchPosition, ', tracker);
+          handleSuccessfulWatch(position, tracker.currentCoordinates, dispatch);
+        },
+        (error) => console.log(error),
+        WATCH_OPTIONS,
       );
+      dispatch({
+        type: 'ADD_WATCH_ID',
+        payload: {
+          watchId,
+        },
+      });
     }
     const dateObject = new Date();
     const initialStartTime = dateObject.getTime();

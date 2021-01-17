@@ -18,6 +18,11 @@ export interface StatsState {
   totalDistance: number;
 }
 
+export interface GeolocationApiType {
+  coords: GeolocationType;
+  timestamp: number;
+}
+
 export interface GeolocationType {
   latitude: number;
   longitude: number;

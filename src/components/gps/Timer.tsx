@@ -3,9 +3,8 @@ import { View, Text, StyleSheet } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import colors from '../../../colors';
 import { useAppState, useAppDispatch } from '../../context/appContext';
-import { GeolocationType } from '../../customTypes/context';
 import { convertTimeForDisplay } from '../../utils/date-time';
-import { watchPosition } from '../../utils/geolocation';
+import { handleSuccessfulWatch, WATCH_OPTIONS } from '../../utils/geolocation';
 import Button from '../Button';
 
 const Timer: React.FC = () => {
@@ -86,6 +85,7 @@ const Timer: React.FC = () => {
 
   function handlePause() {
     tracker.watchId != null && Geolocation.clearWatch(tracker?.watchId);
+    // tracker.watchId is set to null in reducer
     dispatch({
       type: 'PAUSE_TIMER',
       payload: {
@@ -101,12 +101,18 @@ const Timer: React.FC = () => {
   }
 
   async function handleResume() {
-    await watchPosition(
-      dispatch,
-      tracker.watchId,
-      tracker.currentCoordinates ||
-        ({ longitude: 0, latitude: 0 } as GeolocationType),
+    const watchId = Geolocation.watchPosition(
+      (position) =>
+        handleSuccessfulWatch(position, tracker.currentCoordinates, dispatch),
+      (error) => console.log(error),
+      WATCH_OPTIONS,
     );
+    dispatch({
+      type: 'ADD_WATCH_ID',
+      payload: {
+        watchId,
+      },
+    });
     dispatch({
       type: 'RESUME_TIMER',
       payload: {

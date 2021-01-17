@@ -1,5 +1,9 @@
 import Geolocation from 'react-native-geolocation-service';
-import { DispatchType, GeolocationType } from '../customTypes/context';
+import {
+  DispatchType,
+  GeolocationApiType,
+  GeolocationType,
+} from '../customTypes/context';
 
 export function getInitialPosition(dispatch: DispatchType): undefined {
   // get initial location data:
@@ -22,50 +26,29 @@ export function getInitialPosition(dispatch: DispatchType): undefined {
   return;
 }
 
-// TODO: becasue of closure currentCoords will always be the currentCoords when watchPostion is called(usually {0, 0}), gotta figure something out (call context in callback???)
-export function watchPosition(
-  dispatch: DispatchType,
-  watchId: number | null,
-  currentCoords: GeolocationType,
-): undefined {
-  if (watchId) {
-    Geolocation.clearWatch(watchId);
-    dispatch({
-      type: 'REMOVE_WATCH_ID',
-    });
-  } else {
-    watchId = Geolocation.watchPosition(
-      (position) => {
-        console.log('currentCoords, ', currentCoords);
-        if (
-          currentCoords.latitude == position.coords.latitude &&
-          currentCoords.longitude == position.coords.longitude
-        ) {
-          console.log('inside watch cb, ', currentCoords.latitude);
-          return;
-        }
-        console.log('watching position');
-        dispatch({
-          type: 'UPDATE_COORDS',
-          payload: {
-            coords: position.coords,
-          },
-        });
-      },
-      (error) => console.log(error),
-      {
-        enableHighAccuracy: true,
-        distanceFilter: 100,
-      },
-    );
-    console.log('this is the watchId, ', watchId);
-    dispatch({
-      type: 'ADD_WATCH_ID',
-      payload: {
-        watchId,
-      },
-    });
-  }
+export const WATCH_OPTIONS = {
+  enableHighAccuracy: true,
+  distanceFilter: 1,
+  useSignificantChanges: true,
+};
 
-  return;
+// TODO: somehow updating routelocations stopped happening
+export function handleSuccessfulWatch(
+  position: GeolocationApiType,
+  currentCoords: GeolocationType | null,
+  dispatch: DispatchType,
+): undefined {
+  if (
+    currentCoords?.latitude == position.coords.latitude &&
+    currentCoords?.longitude == position.coords.longitude
+  ) {
+    console.log('inside watch cb, ', currentCoords);
+    return;
+  }
+  dispatch({
+    type: 'UPDATE_COORDS',
+    payload: {
+      coords: position.coords,
+    },
+  });
 }
