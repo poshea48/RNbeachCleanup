@@ -1,9 +1,5 @@
 import Geolocation from 'react-native-geolocation-service';
-import {
-  DispatchType,
-  GeolocationApiType,
-  GeolocationType,
-} from '../customTypes/context';
+import { DispatchType, GeolocationApiType } from '../customTypes/context';
 
 export function getInitialPosition(dispatch: DispatchType): undefined {
   // get initial location data:
@@ -13,7 +9,10 @@ export function getInitialPosition(dispatch: DispatchType): undefined {
       dispatch({
         type: 'ADD_INITIAL_GPS',
         payload: {
-          coords: position.coords,
+          coords: {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          },
         },
       });
     },
@@ -28,27 +27,22 @@ export function getInitialPosition(dispatch: DispatchType): undefined {
 
 export const WATCH_OPTIONS = {
   enableHighAccuracy: true,
-  distanceFilter: 1,
-  useSignificantChanges: true,
+  distanceFilter: 10,
+  // useSignificantChanges: true, //***********  This was the problem with routeCoordinates not updating ****************/
 };
 
-// TODO: somehow updating routelocations stopped happening
 export function handleSuccessfulWatch(
   position: GeolocationApiType,
-  currentCoords: GeolocationType | null,
   dispatch: DispatchType,
 ): undefined {
-  if (
-    currentCoords?.latitude == position.coords.latitude &&
-    currentCoords?.longitude == position.coords.longitude
-  ) {
-    console.log('inside watch cb, ', currentCoords);
-    return;
-  }
   dispatch({
     type: 'UPDATE_COORDS',
     payload: {
-      coords: position.coords,
+      coords: {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+      },
     },
   });
+  return;
 }

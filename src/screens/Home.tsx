@@ -14,7 +14,6 @@ const Home: React.FC<{ navigation: HomeScreenNavigationProp }> = ({
 }) => {
   const { started, dataSubmitted, tracker } = useAppState();
   const dispatch = useAppDispatch();
-  console.log('in Home ', tracker);
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.heading}>Beach Cleanup App</Text>
@@ -40,9 +39,7 @@ const Home: React.FC<{ navigation: HomeScreenNavigationProp }> = ({
   );
 
   function reset() {
-    console.log('inside reset, outside clearwatch, ', tracker);
-    if (tracker.watchId) {
-      console.log('clearing watch id');
+    if (tracker.watchId !== null) {
       Geolocation.clearWatch(tracker.watchId);
     }
     dispatch({ type: 'RESET' });

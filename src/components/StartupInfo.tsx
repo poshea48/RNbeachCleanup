@@ -19,7 +19,7 @@ type StartNavProp = BottomTabNavigationProp<TabParamList, 'Debris'>;
 const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
   navigation,
 }) => {
-  const { started, stats, tracker } = useAppState();
+  const { started, stats, gpsEnabled, tracker } = useAppState();
   const [open, setOpen] = useState(false);
 
   const dispatch = useAppDispatch();
@@ -29,7 +29,8 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
       Geolocation.requestAuthorization('always');
     }
     return () => {
-      if (tracker.watchId) {
+      if (tracker.watchId != null) {
+        console.log('clearing watchId');
         Geolocation.clearWatch(tracker.watchId);
         dispatch({
           type: 'REMOVE_WATCH_ID',
@@ -37,7 +38,6 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
       }
     };
   }, [dispatch, tracker.watchId]);
-  console.log('tracker context in StartupInfo, ', tracker);
   return (
     <View style={styles.container}>
       <Text style={styles.header}>
@@ -59,12 +59,12 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
           <View style={styles.gps}>
             <Text
               style={{ color: tracker.inUse ? colors.orange : colors.gray }}>
-              GPS({tracker.inUse ? 'on' : 'off'})
+              GPS({gpsEnabled ? 'on' : 'off'})
             </Text>
             <Switch
               style={styles.switch}
               color={colors.main}
-              value={tracker.inUse}
+              value={gpsEnabled}
               onValueChange={toggleGps}
             />
           </View>
@@ -129,32 +129,26 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
 
   /*********** Util Functions *************/
 
+  //TODO: Handle Geolocation.watchPostion when GPS is toggled on after cleanup has started
   function toggleGps() {
     dispatch({
       type: 'TOGGLE_GPS',
-      payload: {
-        tracker: {
-          ...tracker,
-          inUse: !tracker.inUse,
-        },
-      },
     });
   }
 
-  // TODO: somehow updating routelocations stopped happening
-
   function handleStartPress() {
-    if (tracker.inUse) {
+    if (gpsEnabled) {
       // get initial location data:
       getInitialPosition(dispatch);
+
+      // watch position and add new coordinates to context
       const watchId = Geolocation.watchPosition(
-        (position) => {
-          console.log('tracker context here inside watchPosition, ', tracker);
-          handleSuccessfulWatch(position, tracker.currentCoordinates, dispatch);
-        },
+        (position) => handleSuccessfulWatch(position, dispatch),
         (error) => console.log(error),
         WATCH_OPTIONS,
       );
+
+      // add watchId to context in order to dismount when resetting
       dispatch({
         type: 'ADD_WATCH_ID',
         payload: {

@@ -39,6 +39,7 @@ const initialState: AppState = {
   dataSubmitted: false,
   debrisCollected: null,
   debrisList: DebrisList,
+  gpsEnabled: false,
   location: {
     beachName: '',
     city: '',
@@ -92,6 +93,7 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
         tracker: {
           ...state.tracker,
           ...payload?.tracker,
+          inUse: true,
         },
       };
     case 'END_CLEANUP':
@@ -108,6 +110,10 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
               ) + state.stats.totalTime
             : state.stats.totalTime,
         },
+        tracker: {
+          ...state.tracker,
+          inUse: false,
+        },
       };
     case 'RESUME_CLEANUP':
       return {
@@ -118,6 +124,10 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
           ...payload?.stats,
           endTime: 0,
         },
+        tracker: {
+          ...state.tracker,
+          inUse: true,
+        },
       };
 
     case 'RESET':
@@ -127,7 +137,7 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
         ...initialState,
         tracker: {
           ...initialState.tracker,
-          inUse: state.tracker.inUse,
+          inUse: false,
         },
       };
     case 'ADD_ASYNC_STORAGE':
@@ -216,10 +226,7 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
     case 'TOGGLE_GPS':
       return {
         ...state,
-        tracker: {
-          ...state.tracker,
-          inUse: !state.tracker.inUse,
-        },
+        gpsEnabled: !state.gpsEnabled,
       };
     case 'ADD_INITIAL_GPS':
       const initialCoordinates: GeolocationType = {
@@ -230,14 +237,26 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
         tracker: {
           ...state.tracker,
           initialCoordinates,
+          currentCoordinates: initialCoordinates,
         },
       };
     case 'UPDATE_COORDS':
-      console.log('updating Coords reducer');
+      if (!state.tracker.inUse) return { ...state };
       const currentCoords = {
         ...state.tracker.currentCoordinates,
       } as GeolocationType;
       const newCoords = { ...payload?.coords } as GeolocationType;
+
+      // If incoming position is same as current, don't do anyting
+      if (
+        currentCoords?.latitude == newCoords.latitude &&
+        currentCoords?.longitude == newCoords.longitude
+      ) {
+        console.log('coords are the same, ', currentCoords);
+        return {
+          ...state,
+        };
+      }
       const routeCoordinates = state.tracker.routeCoordinates
         ? [...state.tracker.routeCoordinates]
         : [];
@@ -284,6 +303,7 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
         stats: { ...state.stats, ...payload?.stats },
         tracker: {
           ...state.tracker,
+          inUse: false,
           watchId: null,
         },
       };
@@ -291,10 +311,18 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
       return {
         ...state,
         stats: { ...state.stats, ...payload?.stats },
+        tracker: {
+          ...state.tracker,
+          inUse: true,
+        },
       };
     case 'FINISHED':
       return {
         ...state,
+        tracker: {
+          ...state.tracker,
+          inUse: false,
+        },
       };
     default:
       return state;

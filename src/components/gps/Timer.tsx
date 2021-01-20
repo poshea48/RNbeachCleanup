@@ -102,8 +102,7 @@ const Timer: React.FC = () => {
 
   async function handleResume() {
     const watchId = Geolocation.watchPosition(
-      (position) =>
-        handleSuccessfulWatch(position, tracker.currentCoordinates, dispatch),
+      (position) => handleSuccessfulWatch(position, dispatch),
       (error) => console.log(error),
       WATCH_OPTIONS,
     );
