@@ -8,31 +8,36 @@ import { useAppDispatch, useAppState } from '../context/appContext';
 import { TabParamList } from '../customTypes/navigation';
 import colors from '../../colors';
 import Button from './Button';
-import { GeolocationType } from '../customTypes/context';
+import {
+  getInitialPosition,
+  handleSuccessfulWatch,
+  WATCH_OPTIONS,
+} from '../utils/geolocation';
 
 type StartNavProp = BottomTabNavigationProp<TabParamList, 'Debris'>;
 
 const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
   navigation,
 }) => {
-  const { started, stats, tracker } = useAppState();
+  const { started, stats, gpsEnabled, tracker } = useAppState();
   const [open, setOpen] = useState(false);
-  const [watchId, setWatchId] = useState<number | null>(null);
 
   const dispatch = useAppDispatch();
+
   useEffect(() => {
-    console.log('watchId, ', watchId);
     if (Platform.OS === 'ios') {
       Geolocation.requestAuthorization('always');
     }
     return () => {
-      if (watchId) {
-        Geolocation.clearWatch(watchId);
-        setWatchId(null);
+      if (tracker.watchId != null) {
+        console.log('clearing watchId');
+        Geolocation.clearWatch(tracker.watchId);
+        dispatch({
+          type: 'REMOVE_WATCH_ID',
+        });
       }
     };
-  }, [watchId]);
-
+  }, [dispatch, tracker.watchId]);
   return (
     <View style={styles.container}>
       <Text style={styles.header}>
@@ -54,12 +59,12 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
           <View style={styles.gps}>
             <Text
               style={{ color: tracker.inUse ? colors.orange : colors.gray }}>
-              GPS({tracker.inUse ? 'on' : 'off'})
+              GPS({gpsEnabled ? 'on' : 'off'})
             </Text>
             <Switch
               style={styles.switch}
               color={colors.main}
-              value={tracker.inUse}
+              value={gpsEnabled}
               onValueChange={toggleGps}
             />
           </View>
@@ -124,47 +129,32 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
 
   /*********** Util Functions *************/
 
+  //TODO: Handle Geolocation.watchPostion when GPS is toggled on after cleanup has started
   function toggleGps() {
     dispatch({
       type: 'TOGGLE_GPS',
-      payload: {
-        tracker: {
-          ...tracker,
-          inUse: !tracker.inUse,
-        },
-      },
     });
   }
 
   function handleStartPress() {
-    if (tracker.inUse) {
+    if (gpsEnabled) {
       // get initial location data:
-      Geolocation.getCurrentPosition(
-        (position) => {
-          if (!position.coords)
-            return console.log('no coordinates were passed');
-          dispatch({
-            type: 'ADD_INITIAL_GPS',
-            payload: {
-              coords: position.coords,
-            },
-          });
-        },
-        (error) => {
-          // See error code charts below.
-          console.log(error.code, error.message);
-        },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
-      );
-      const newWatch = Geolocation.watchPosition(
-        handleWatchCallback,
+      getInitialPosition(dispatch);
+
+      // watch position and add new coordinates to context
+      const watchId = Geolocation.watchPosition(
+        (position) => handleSuccessfulWatch(position, dispatch),
         (error) => console.log(error),
-        {
-          enableHighAccuracy: true,
-          distanceFilter: 10,
-        },
+        WATCH_OPTIONS,
       );
-      setWatchId(newWatch);
+
+      // add watchId to context in order to dismount when resetting
+      dispatch({
+        type: 'ADD_WATCH_ID',
+        payload: {
+          watchId,
+        },
+      });
     }
     const dateObject = new Date();
     const initialStartTime = dateObject.getTime();
@@ -193,43 +183,6 @@ const StartupInfo: React.FC<{ navigation: StartNavProp }> = ({
     });
     navigation.navigate('Debris');
   }
-
-  function handleWatchCallback(position: { coords: GeolocationType }) {
-    dispatch({
-      type: 'UPDATE_COORDS',
-      payload: {
-        coords: position.coords,
-      },
-    });
-  }
-
-  // this.watchID = navigator.geolocation.watchPosition(
-  //   (position) => {
-  //     const { routeCoordinates, distanceTravelled } = this.state;
-  //     const { latitude, longitude } = position.coords;
-
-  //     const newCoordinate = {
-  //       latitude,
-  //       longitude,
-  //     };
-  //     console.log({ newCoordinate });
-
-  //     this.setState({
-  //       latitude,
-  //       longitude,
-  //       routeCoordinates: routeCoordinates.concat([newCoordinate]),
-  //       distanceTravelled: distanceTravelled + this.calcDistance(newCoordinate),
-  //       prevLatLng: newCoordinate,
-  //     });
-  //   },
-  //   (error) => console.log(error),
-  //   {
-  //     enableHighAccuracy: true,
-  //     timeout: 20000,
-  //     maximumAge: 1000,
-  //     distanceFilter: 10,
-  //   },
-  // );
 
   function handleResetPress() {
     setOpen(true);

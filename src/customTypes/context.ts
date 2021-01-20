@@ -18,14 +18,14 @@ export interface StatsState {
   totalDistance: number;
 }
 
+export interface GeolocationApiType {
+  coords: GeolocationType;
+  timestamp: number;
+}
+
 export interface GeolocationType {
   latitude: number;
   longitude: number;
-  altitude: number | null;
-  accuracy: number;
-  altitudeAccuracy: number | null;
-  heading: number | null;
-  speed: number | null;
 }
 
 export interface TrackerType {
@@ -40,6 +40,7 @@ export interface TrackerType {
 export interface AppState {
   started: boolean;
   finished: boolean;
+  gpsEnabled: boolean;
   dataSubmitted: boolean;
   debrisCollected: null | DebrisCollectedType;
   debrisList: string[];
@@ -56,6 +57,7 @@ export interface PayloadType {
   stats?: StatsState;
   tracker?: TrackerType;
   coords?: GeolocationType;
+  watchId?: number | null;
 }
 
 export interface ActionType {

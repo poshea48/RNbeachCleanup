@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useReducer } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Geolocation from 'react-native-geolocation-service';
 import {
   ActionType,
   AppState,
@@ -38,6 +39,7 @@ const initialState: AppState = {
   dataSubmitted: false,
   debrisCollected: null,
   debrisList: DebrisList,
+  gpsEnabled: false,
   location: {
     beachName: '',
     city: '',
@@ -62,21 +64,86 @@ const initialState: AppState = {
   },
 };
 
+async function removeFromLocal() {
+  try {
+    await AsyncStorage.removeItem('@debrisState');
+  } catch (e) {
+    // remove error
+  }
+
+  console.log('Done.');
+}
+
+function stopWatchPostion(watchId: number | null) {
+  if (watchId == null) return;
+  Geolocation.clearWatch(watchId);
+}
+
 const cleanupReducer = (state: AppState, action: ActionType): AppState => {
   const { type, payload } = action;
   switch (type) {
-    case 'ADD_ASYNC_STORAGE':
+    case 'START_CLEANUP':
       return {
         ...state,
-        ...payload,
+        started: true,
+        stats: {
+          ...state.stats,
+          ...payload?.stats,
+        },
+        tracker: {
+          ...state.tracker,
+          ...payload?.tracker,
+          inUse: true,
+        },
       };
+    case 'END_CLEANUP':
+      return {
+        ...state,
+        finished: true,
+        stats: {
+          ...state.stats,
+          ...payload?.stats,
+          currentStartTime: 0,
+          totalTime: payload?.stats
+            ? Math.floor(
+                (payload.stats.endTime - state.stats.currentStartTime) / 1000,
+              ) + state.stats.totalTime
+            : state.stats.totalTime,
+        },
+        tracker: {
+          ...state.tracker,
+          inUse: false,
+        },
+      };
+    case 'RESUME_CLEANUP':
+      return {
+        ...state,
+        finished: false,
+        stats: {
+          ...state.stats,
+          ...payload?.stats,
+          endTime: 0,
+        },
+        tracker: {
+          ...state.tracker,
+          inUse: true,
+        },
+      };
+
     case 'RESET':
+      removeFromLocal();
+      stopWatchPostion(state.tracker.watchId);
       return {
         ...initialState,
         tracker: {
           ...initialState.tracker,
-          inUse: state.tracker.inUse,
+          inUse: false,
         },
+      };
+    case 'ADD_ASYNC_STORAGE':
+      return {
+        ...state,
+        ...payload,
       };
     case 'ADD_DEBRIS':
       if (payload?.debris) {
@@ -137,6 +204,9 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
       } else {
         return { ...state };
       }
+
+    /*********************** GPS reducers **************************/
+
     case 'ADD_LOCATION':
       return {
         ...state,
@@ -156,10 +226,7 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
     case 'TOGGLE_GPS':
       return {
         ...state,
-        tracker: {
-          ...state.tracker,
-          inUse: !state.tracker.inUse,
-        },
+        gpsEnabled: !state.gpsEnabled,
       };
     case 'ADD_INITIAL_GPS':
       const initialCoordinates: GeolocationType = {
@@ -170,13 +237,26 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
         tracker: {
           ...state.tracker,
           initialCoordinates,
+          currentCoordinates: initialCoordinates,
         },
       };
     case 'UPDATE_COORDS':
+      if (!state.tracker.inUse) return { ...state };
       const currentCoords = {
         ...state.tracker.currentCoordinates,
       } as GeolocationType;
       const newCoords = { ...payload?.coords } as GeolocationType;
+
+      // If incoming position is same as current, don't do anyting
+      if (
+        currentCoords?.latitude == newCoords.latitude &&
+        currentCoords?.longitude == newCoords.longitude
+      ) {
+        console.log('coords are the same, ', currentCoords);
+        return {
+          ...state,
+        };
+      }
       const routeCoordinates = state.tracker.routeCoordinates
         ? [...state.tracker.routeCoordinates]
         : [];
@@ -192,57 +272,57 @@ const cleanupReducer = (state: AppState, action: ActionType): AppState => {
           ],
         },
       };
-    case 'START_CLEANUP':
+    case 'ADD_WATCH_ID':
+      // == implicitly converts null and undefined to same value
+      if (payload?.watchId == null) {
+        return {
+          ...state,
+        };
+      }
+      console.log('payload.watchId, ', payload.watchId);
       return {
         ...state,
-        started: true,
-        stats: {
-          ...state.stats,
-          ...payload?.stats,
-        },
         tracker: {
           ...state.tracker,
-          ...payload?.tracker,
+          watchId: payload.watchId,
         },
       };
-    case 'END_CLEANUP':
+    case 'REMOVE_WATCH_ID':
       return {
         ...state,
-        finished: true,
-        stats: {
-          ...state.stats,
-          ...payload?.stats,
-          currentStartTime: 0,
-          totalTime: payload?.stats
-            ? Math.floor(
-                (payload.stats.endTime - state.stats.currentStartTime) / 1000,
-              ) + state.stats.totalTime
-            : state.stats.totalTime,
+        tracker: {
+          ...state.tracker,
+          watchId: null,
         },
       };
-    case 'RESUME_CLEANUP':
-      return {
-        ...state,
-        finished: false,
-        stats: {
-          ...state.stats,
-          ...payload?.stats,
-          endTime: 0,
-        },
-      };
+
+    /*********************** Timer reducers **************************/
     case 'PAUSE_TIMER':
       return {
         ...state,
         stats: { ...state.stats, ...payload?.stats },
+        tracker: {
+          ...state.tracker,
+          inUse: false,
+          watchId: null,
+        },
       };
     case 'RESUME_TIMER':
       return {
         ...state,
         stats: { ...state.stats, ...payload?.stats },
+        tracker: {
+          ...state.tracker,
+          inUse: true,
+        },
       };
     case 'FINISHED':
       return {
         ...state,
+        tracker: {
+          ...state.tracker,
+          inUse: false,
+        },
       };
     default:
       return state;

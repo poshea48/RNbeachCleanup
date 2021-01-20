@@ -2,6 +2,7 @@ import React from 'react';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { SafeAreaView, Text, StyleSheet } from 'react-native';
 import { Button } from 'react-native-paper';
+import Geolocation from 'react-native-geolocation-service';
 import colors from '../../colors';
 import { useAppState, useAppDispatch } from '../context/appContext';
 import { RootStackParamList } from '../customTypes/navigation';
@@ -11,9 +12,8 @@ type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
 const Home: React.FC<{ navigation: HomeScreenNavigationProp }> = ({
   navigation,
 }) => {
-  const { started, dataSubmitted } = useAppState();
+  const { started, dataSubmitted, tracker } = useAppState();
   const dispatch = useAppDispatch();
-
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.heading}>Beach Cleanup App</Text>
@@ -21,10 +21,7 @@ const Home: React.FC<{ navigation: HomeScreenNavigationProp }> = ({
         contentStyle={contentStyle}
         mode="contained"
         style={styles.button}
-        onPress={() => {
-          dispatch({ type: 'RESET' });
-          navigation.navigate('Cleanup');
-        }}>
+        onPress={reset}>
         <Text style={styles.button}>New Cleanup</Text>
       </Button>
       {started && !dataSubmitted && (
@@ -40,6 +37,14 @@ const Home: React.FC<{ navigation: HomeScreenNavigationProp }> = ({
       )}
     </SafeAreaView>
   );
+
+  function reset() {
+    if (tracker.watchId !== null) {
+      Geolocation.clearWatch(tracker.watchId);
+    }
+    dispatch({ type: 'RESET' });
+    navigation.navigate('Cleanup');
+  }
 };
 
 const contentStyle = {

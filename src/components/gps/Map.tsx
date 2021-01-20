@@ -1,21 +1,18 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useEffect } from 'react';
 import { Dimensions } from 'react-native';
 import MapView, { Polyline } from 'react-native-maps';
 import { useAppState } from '../../context/appContext';
+import { GeolocationType } from '../../customTypes/context';
 
 const Map: React.FC = () => {
   const { width, height } = Dimensions.get('window');
   const ASPECT_RATIO = width / height;
   const LATITUDE_DELTA = 0.00922;
   const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
-
   const { tracker } = useAppState();
-  const { latitude, longitude } = tracker.currentCoordinates || {
-    latitude: 0,
-    longitude: 0,
-  };
 
-  const { routeCoordinates } = tracker;
+  const routeCoordinates =
+    tracker.routeCoordinates || ([] as GeolocationType[]);
   const refMap = useRef<MapView | null>(null);
 
   const getDeltas = useCallback(() => {
@@ -25,33 +22,42 @@ const Map: React.FC = () => {
     };
   }, [LONGITUDE_DELTA]);
 
-  const getInitialRegion = useCallback(() => {
+  const getCurrentRegion = useCallback(() => {
     return {
-      latitude: tracker.initialCoordinates?.latitude || 0,
-      longitude: tracker.initialCoordinates?.longitude || 0,
+      latitude: tracker.currentCoordinates?.latitude || 0,
+      longitude: tracker.currentCoordinates?.longitude || 0,
       ...getDeltas(),
     };
   }, [
     getDeltas,
-    tracker.initialCoordinates?.latitude,
-    tracker.initialCoordinates?.longitude,
+    tracker.currentCoordinates?.latitude,
+    tracker.currentCoordinates?.longitude,
   ]);
+
+  // animate to region after intital mount and when tracker.currentCoordinates updates
+  useEffect(() => {
+    refMap.current && refMap.current.animateToRegion(getCurrentRegion());
+  }, [getCurrentRegion, tracker.currentCoordinates]);
 
   return (
     <MapView
       style={{ flex: 1 }}
       ref={(ref) => (refMap.current = ref)}
       minZoomLevel={15}
-      initialRegion={getInitialRegion()}
-      showsUserLocation={true}
-      onUserLocationChange={() => {
-        console.log('user location changes');
-        refMap.current?.animateCamera({
-          center: { latitude, longitude },
-        });
-      }}
-      followsUserLocation>
-      <Polyline coordinates={routeCoordinates || []} strokeWidth={5} />
+      region={getCurrentRegion()}
+      showsUserLocation
+      onLayout={() => {
+        refMap.current &&
+          refMap.current.animateCamera({
+            center: {
+              latitude: tracker.currentCoordinates?.latitude || 0,
+              longitude: tracker.currentCoordinates?.longitude || 0,
+            },
+            heading: 0,
+            pitch: 90,
+          });
+      }}>
+      <Polyline coordinates={routeCoordinates} strokeWidth={5} />
     </MapView>
   );
 };

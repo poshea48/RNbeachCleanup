@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import Geolocation from 'react-native-geolocation-service';
 import colors from '../../../colors';
 import { useAppState, useAppDispatch } from '../../context/appContext';
 import { convertTimeForDisplay } from '../../utils/date-time';
+import { handleSuccessfulWatch, WATCH_OPTIONS } from '../../utils/geolocation';
 import Button from '../Button';
 
 const Timer: React.FC = () => {
-  const { started, finished, stats } = useAppState();
+  const { started, finished, stats, tracker } = useAppState();
   const [timeDisplay, setTimeDisplay] = useState(
     stats.totalTime + Math.floor((Date.now() - stats.currentStartTime) / 1000),
   );
@@ -49,7 +51,7 @@ const Timer: React.FC = () => {
       <View style={styles.buttonContainer}>
         {stats.currentStartTime && !finished ? (
           <Button
-            pressCb={pause}
+            pressCb={handlePause}
             message="Pause"
             styles={{
               container: { backgroundColor: colors.warning },
@@ -58,7 +60,7 @@ const Timer: React.FC = () => {
           />
         ) : started && !finished ? (
           <Button
-            pressCb={resume}
+            pressCb={handleResume}
             message="Resume"
             styles={{
               container: { backgroundColor: colors.success },
@@ -81,7 +83,9 @@ const Timer: React.FC = () => {
 
   /*********** Util Functions *************/
 
-  function pause() {
+  function handlePause() {
+    tracker.watchId != null && Geolocation.clearWatch(tracker?.watchId);
+    // tracker.watchId is set to null in reducer
     dispatch({
       type: 'PAUSE_TIMER',
       payload: {
@@ -96,7 +100,18 @@ const Timer: React.FC = () => {
     });
   }
 
-  function resume() {
+  async function handleResume() {
+    const watchId = Geolocation.watchPosition(
+      (position) => handleSuccessfulWatch(position, dispatch),
+      (error) => console.log(error),
+      WATCH_OPTIONS,
+    );
+    dispatch({
+      type: 'ADD_WATCH_ID',
+      payload: {
+        watchId,
+      },
+    });
     dispatch({
       type: 'RESUME_TIMER',
       payload: {
